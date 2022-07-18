@@ -100,7 +100,7 @@ public:
 	virtual void Falling() override;
 	virtual void Landed(const FHitResult& Hit) override;
 
-	UFUNCTION(BlueprintNativeEvent)
+	UFUNCTION(BlueprintNativeEvent, Category = "Character")
 	void OnHardLanded();
 	virtual void OnHardLanded_Implementation();
 
@@ -202,7 +202,7 @@ private:
 	float JumpApexHeight = 0.f;
 
 	void PlayHardLandingMontage();
-	void StopHardLandingMontage();
+	void StopHardLandingMontage() const;
 
 	const FMantlingSettings& GetMantlingSettings(float LedgeHeight) const;
 

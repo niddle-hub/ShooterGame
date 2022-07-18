@@ -251,7 +251,9 @@ void ABaseCharacter::Landed(const FHitResult& Hit)
 	Super::Landed(Hit);
 	
 	const float CurrentActorLocationZ = GetActorLocation().Z;
-	if (JumpApexHeight > CurrentActorLocationZ && JumpApexHeight >= HardLandingSettings.HardLandingPlayHeight)
+	const float JumpLenght = JumpApexHeight - CurrentActorLocationZ;
+	
+	if (JumpLenght >= HardLandingSettings.HardLandingPlayHeight)
 	{
 		if(OnHardLandedDelegate.IsBound())
 		{
@@ -267,11 +269,13 @@ void ABaseCharacter::PlayHardLandingMontage()
 
 	FTimerHandle HardLandingTimerHandle;
 	GetWorldTimerManager().SetTimer(HardLandingTimerHandle, this, &ABaseCharacter::StopHardLandingMontage,MontageDuration, false);
+	
+	GetController()->SetIgnoreMoveInput(true);
 }
 
-void ABaseCharacter::StopHardLandingMontage()
+void ABaseCharacter::StopHardLandingMontage() const
 {
-	GEngine->AddOnScreenDebugMessage(-1,1.f,FColor::Green, TEXT("ABaseCharacter::StopHardLandingMontage()"));
+	GetController()->SetIgnoreMoveInput(false);
 }
 
 void ABaseCharacter::OnHardLanded_Implementation()
