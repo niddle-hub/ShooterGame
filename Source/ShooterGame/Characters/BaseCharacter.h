@@ -53,7 +53,7 @@ struct FHardLandingSettings
 
 typedef TArray<AInteractiveActor*, TInlineAllocator<10>> TInteractiveActorsArray;
 
-DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnHardLanded);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnHardLandedSignature);
 
 UCLASS(Abstract, NotBlueprintable)
 class SHOOTERGAME_API ABaseCharacter : public ACharacter
@@ -105,7 +105,7 @@ public:
 	virtual void OnHardLanded_Implementation();
 
 	UPROPERTY(BlueprintAssignable, Category = "Character")
-	FOnHardLanded OnHardLandedDelegate;
+	FOnHardLandedSignature OnHardLandedDelegate;
 	
 	FORCEINLINE UBaseCharacterMovementComponent* GetBaseCharacterMovementComponent() const { return BaseCharacterMovementComponent; }
 
@@ -139,6 +139,14 @@ protected:
 	virtual bool CanSprint();
 	
 	virtual bool CanJumpInternal_Implementation() const override;
+
+	virtual void OnDeath();
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Character|Animations")
+	UAnimMontage* OnDeathAnimMontage;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Character|Attributes")
+	UCurveFloat* FallDamageCurve;
 
 	UPROPERTY()
 	UBaseCharacterMovementComponent* BaseCharacterMovementComponent;
@@ -177,6 +185,9 @@ protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Character|Movement|Landing")
 	FHardLandingSettings HardLandingSettings;
 
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Character|Components")
+	class UCharacterAttributesComponent* CharacterAttributesComponent;
+
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Character|Movement|Mantling", meta = (ClampMin = 0.f, UIMin = 0.f))
 	float LowMantleMaxHeight = 125.f;
 	
@@ -202,7 +213,9 @@ private:
 	float JumpApexHeight = 0.f;
 
 	void PlayHardLandingMontage();
-	void StopHardLandingMontage() const;
+	void StopHardLandingMontage();
+
+	void EnableRagdoll() const;
 
 	const FMantlingSettings& GetMantlingSettings(float LedgeHeight) const;
 

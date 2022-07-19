@@ -3,16 +3,22 @@
 #include "DrawDebugHelpers.h"
 #include "Components/CapsuleComponent.h"
 #include "Curves/CurveVector.h"
+#include "Kismet/GameplayStatics.h"
 #include "Kismet/KismetSystemLibrary.h"
+#include "ShooterGame/ShooterGameTypes.h"
 #include "ShooterGame/Actors/Interactive/Environment/Ladder.h"
 #include "ShooterGame/Actors/Interactive/Environment/Zipline.h"
 #include "ShooterGame/Components/LedgeDetectorComponent.h"
+#include "ShooterGame/Components/CharacterComponents/CharacterAttributesComponent.h"
 
 ABaseCharacter::ABaseCharacter(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer.SetDefaultSubobjectClass<UBaseCharacterMovementComponent>(CharacterMovementComponentName))
 {
 	BaseCharacterMovementComponent = StaticCast<UBaseCharacterMovementComponent*>(GetCharacterMovement());
 	LedgeDetectorComponent = CreateDefaultSubobject<ULedgeDetectorComponent>(TEXT("Ledge Detector"));
+
+	CharacterAttributesComponent = CreateDefaultSubobject<UCharacterAttributesComponent>(TEXT("Character Attributes"));
+	
 	CurrentStamina = MaxStamina;
 
 	GetMesh()->CastShadow = true;
@@ -25,10 +31,6 @@ void ABaseCharacter::Tick(float DeltaSeconds)
 	TryChangeSprintState();
 	UpdateIKSettings(DeltaSeconds);
 	UpdateStamina(DeltaSeconds);
-	
-	GEngine->AddOnScreenDebugMessage(-1, DeltaSeconds, FColor::Red, FString::Printf(TEXT("Max Speed: %f"), BaseCharacterMovementComponent->GetMaxSpeed()));
-	GEngine->AddOnScreenDebugMessage(-1, DeltaSeconds, FColor::Orange, FString::Printf(TEXT("Player Speed: %.2f"), BaseCharacterMovementComponent->Velocity.Size()));
-	GEngine->AddOnScreenDebugMessage(-1, DeltaSeconds, FColor::Yellow, FString::Printf(TEXT("Stamina: %.2f"), CurrentStamina));
 }
 
 void ABaseCharacter::BeginPlay()
@@ -37,6 +39,7 @@ void ABaseCharacter::BeginPlay()
 
 	OnReachedJumpApex.AddDynamic(this, &ABaseCharacter::OnReachedJumpApexHeight);
 	OnHardLandedDelegate.AddDynamic(this, &ABaseCharacter::ABaseCharacter::OnHardLanded);
+	CharacterAttributesComponent->OnDeathEvent.AddUObject(this, &ABaseCharacter::OnDeath);
 }
 
 void ABaseCharacter::TryChangeSprintState()
@@ -249,7 +252,7 @@ void ABaseCharacter::Falling()
 void ABaseCharacter::Landed(const FHitResult& Hit)
 {
 	Super::Landed(Hit);
-	
+
 	const float CurrentActorLocationZ = GetActorLocation().Z;
 	const float JumpLenght = JumpApexHeight - CurrentActorLocationZ;
 	
@@ -260,6 +263,14 @@ void ABaseCharacter::Landed(const FHitResult& Hit)
 			OnHardLandedDelegate.Broadcast();
 		}
 	}
+
+	if (IsValid(FallDamageCurve))
+	{
+		constexpr float UnitScale = 0.01f;
+		const float FallHeight = JumpLenght * UnitScale;
+		const float DamageAmount = FallDamageCurve->GetFloatValue(FallHeight);
+		TakeDamage(DamageAmount, FDamageEvent(), GetController(), Hit.Actor.Get());
+	}
 }
 
 void ABaseCharacter::PlayHardLandingMontage()
@@ -269,13 +280,21 @@ void ABaseCharacter::PlayHardLandingMontage()
 
 	FTimerHandle HardLandingTimerHandle;
 	GetWorldTimerManager().SetTimer(HardLandingTimerHandle, this, &ABaseCharacter::StopHardLandingMontage,MontageDuration, false);
-	
+
 	GetController()->SetIgnoreMoveInput(true);
+	bCanJump = false;
 }
 
-void ABaseCharacter::StopHardLandingMontage() const
+void ABaseCharacter::StopHardLandingMontage()
 {
 	GetController()->SetIgnoreMoveInput(false);
+	bCanJump = true;
+}
+
+void ABaseCharacter::EnableRagdoll() const
+{
+	GetMesh()->SetCollisionProfileName(CollisionProfile::Ragdoll);
+	GetMesh()->SetSimulatePhysics(true);
 }
 
 void ABaseCharacter::OnHardLanded_Implementation()
@@ -296,6 +315,17 @@ void ABaseCharacter::UnregisterInteractiveActor(AInteractiveActor* InteractiveAc
 bool ABaseCharacter::CanJumpInternal_Implementation() const
 {
 	return bCanJump && Super::CanJumpInternal_Implementation() &&!GetBaseCharacterMovementComponent()->IsMantling();
+}
+
+void ABaseCharacter::OnDeath()
+{
+	GetBaseCharacterMovementComponent()->DisableMovement();
+	const float DeathDuration = PlayAnimMontage(OnDeathAnimMontage);
+	
+	if (DeathDuration == 0.f)
+	{
+		EnableRagdoll();
+	}
 }
 
 bool ABaseCharacter::CanSprint()
