@@ -6,9 +6,17 @@
 namespace Debug
 {
 	static const FName LedgeDetection = "LedgeDetection";
+	static const FName CharacterAttributes = "CharacterAttributes";
 }
 
-const FName SocketFPCamera = FName("CameraSocket");
+namespace CollisionProfile
+{
+	static const FName Pawn = "Pawn";
+	static const FName InteractOnlyPawn = "InteractOnlyPawn";
+	static const FName Ragdoll = "Ragdoll";
+}
 
-static const FName OverlapCollisionProfilePawn = "Pawn";
-static const FName OverlapCollisionProfilePawnInteraction = "InteractOnlyPawn";
+namespace Socket
+{
+	const FName FPCamera = "CameraSocket";
+}

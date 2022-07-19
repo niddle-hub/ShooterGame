@@ -19,7 +19,7 @@ AZipline::AZipline()
 
 	InteractionVolume = CreateDefaultSubobject<UCapsuleComponent>(TEXT("Interaction Volume"));
 	InteractionVolume->SetupAttachment(RootComponent);
-	InteractionVolume->SetCollisionProfileName(OverlapCollisionProfilePawnInteraction);
+	InteractionVolume->SetCollisionProfileName(CollisionProfile::InteractOnlyPawn);
 	InteractionVolume->SetGenerateOverlapEvents(true);
 }
 

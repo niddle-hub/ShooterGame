@@ -17,12 +17,12 @@ ALadder::ALadder()
 
 	InteractionVolume = CreateDefaultSubobject<UBoxComponent>(TEXT("Interaction Volume"));
 	InteractionVolume->SetupAttachment(RootComponent);
-	InteractionVolume->SetCollisionProfileName(OverlapCollisionProfilePawnInteraction);
+	InteractionVolume->SetCollisionProfileName(CollisionProfile::InteractOnlyPawn);
 	InteractionVolume->SetGenerateOverlapEvents(true);
 
 	TopInteractionVolume = CreateDefaultSubobject<UBoxComponent>(TEXT("Top Down Interaction Volume"));
 	TopInteractionVolume->SetupAttachment(RootComponent);
-	TopInteractionVolume->SetCollisionProfileName(OverlapCollisionProfilePawnInteraction);
+	TopInteractionVolume->SetCollisionProfileName(CollisionProfile::InteractOnlyPawn);
 	TopInteractionVolume->SetGenerateOverlapEvents(true);
 }
 

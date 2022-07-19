@@ -14,7 +14,7 @@ AFPPlayerCharacter::AFPPlayerCharacter(const FObjectInitializer& ObjectInitializ
 	FirstPersonMeshComponent->SetOnlyOwnerSee(true);
 	
 	FirstPersonCameraComponent = CreateDefaultSubobject<UCameraComponent>(TEXT("First Person Camera"));
-	FirstPersonCameraComponent->SetupAttachment(FirstPersonMeshComponent, SocketFPCamera);
+	FirstPersonCameraComponent->SetupAttachment(FirstPersonMeshComponent, Socket::FPCamera);
 	FirstPersonCameraComponent->bUsePawnControlRotation = true;
 	
 	GetMesh()->SetOwnerNoSee(true);
@@ -109,7 +109,7 @@ FRotator AFPPlayerCharacter::GetViewRotation() const
 	
 	if (IsFPMontagePlaying())
 	{
-		const FRotator SocketRotation = FirstPersonMeshComponent->GetSocketRotation(SocketFPCamera);
+		const FRotator SocketRotation = FirstPersonMeshComponent->GetSocketRotation(Socket::FPCamera);
 		Result.Pitch += SocketRotation.Pitch;
 		Result.Yaw = SocketRotation.Yaw;
 		Result.Roll = SocketRotation.Roll;
