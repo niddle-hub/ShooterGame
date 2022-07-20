@@ -7,6 +7,7 @@
 
 DECLARE_MULTICAST_DELEGATE(FOnDeathSignature)
 DECLARE_MULTICAST_DELEGATE_OneParam(FOutOfStaminaSignature, bool)
+DECLARE_MULTICAST_DELEGATE_OneParam(FOutOfOxygenSignature, bool)
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class SHOOTERGAME_API UCharacterAttributesComponent : public UActorComponent
@@ -19,6 +20,7 @@ public:
 	
 	FOnDeathSignature OnDeathEvent;
 	FOutOfStaminaSignature OnOutOfStaminaEvent;
+	FOutOfOxygenSignature OnOutOfOxygenEvent;
 
 	bool IsAlive() const { return CurrentHealth > 0.f; }
 
@@ -31,18 +33,39 @@ protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Attributes|Sprint", meta=(UIMin = 0))
 	float MaxStamina = 100;
 
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Attributes|Oxygen", meta=(UIMin = 0))
+	float MaxOxygen = 50.0f;
+
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Attributes|Sprint")
 	float StaminaRestoreVelocity = 30.f;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Attributes|Sprint")
 	float StaminaConsumptionVelocity = 10.f;
+	
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Attributes|Oxygen")
+	float OxygenRestoreVelocity = 15.0f;
+	
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Attributes|Oxygen")
+	float OxygenConsumptionVelocity = 2.0f;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Attributes|Oxygen")
+	float OxygenDamage = 5.f;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Attributes|Oxygen")
+	float OxygenDamageDelay = 2.f;
 
 private:
 	float CurrentHealth = 0.f;
 	float CurrentStamina = 0.f;
+	float CurrentOxygen = 0.f;
 
 	static bool IsValidDamage(const float Damage) { return Damage > 0.f; }
 	void UpdateStamina(float DeltaTime);
+
+	FTimerHandle OxygenDamageTimerHandle;
+	void UpdateOxygen(float DeltaTime);
+	void OnOxygenHasChanged(bool InState);
+	void TakeOxygenDamage() const;
 
 #if UE_BUILD_DEBUG || UE_BUILD_DEVELOPMENT
 	void DrawDebugAttributes() const;
