@@ -4,7 +4,6 @@
 
 #if UE_BUILD_DEBUG || UE_BUILD_DEVELOPMENT
 #include "DrawDebugHelpers.h"
-#include "Components/CapsuleComponent.h"
 #include "Kismet/GameplayStatics.h"
 #include "ShooterGame/ShooterGameTypes.h"
 #include "ShooterGame/Subsystems/DebugSubsystem.h"
@@ -23,11 +22,10 @@ void UCharacterAttributesComponent::BeginPlay()
 	checkf(GetOwner()->IsA<ABaseCharacter>(), TEXT("UCharacterAttributesComponent can only be used with a ABaseCharacter owner"));
 
 	CurrentHealth = MaxHealth;
+	CurrentStamina = MaxStamina;
 	CachedBaseCharacterOwner = StaticCast<ABaseCharacter*>(GetOwner());
 
 	CachedBaseCharacterOwner->OnTakeAnyDamage.AddDynamic(this, &UCharacterAttributesComponent::OnTakeAnyDamage);
-	
-	
 }
 
 void UCharacterAttributesComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
@@ -36,6 +34,34 @@ void UCharacterAttributesComponent::TickComponent(float DeltaTime, ELevelTick Ti
 #if UE_BUILD_DEBUG || UE_BUILD_DEVELOPMENT
 	DrawDebugAttributes();
 #endif
+	UpdateStamina(DeltaTime);
+}
+
+void UCharacterAttributesComponent::UpdateStamina(float DeltaTime)
+{
+	const UBaseCharacterMovementComponent* BaseCharacterMovementComponent = CachedBaseCharacterOwner->GetBaseCharacterMovementComponent();
+	if (BaseCharacterMovementComponent->IsSprinting() && BaseCharacterMovementComponent->Velocity.Size() > BaseCharacterMovementComponent->MaxWalkSpeed)
+	{
+		CurrentStamina -= StaminaConsumptionVelocity * DeltaTime;
+	}
+	else
+	{
+		CurrentStamina += StaminaRestoreVelocity * DeltaTime;
+	}
+	CurrentStamina = FMath::Clamp(CurrentStamina, 0.0f, MaxStamina);
+
+	if (OnOutOfStaminaEvent.IsBound())
+	{
+		if (FMath::IsNearlyZero(CurrentStamina))
+		{
+			OnOutOfStaminaEvent.Broadcast(true);
+			
+		}
+		else if (CurrentStamina == MaxStamina)
+		{
+			OnOutOfStaminaEvent.Broadcast(false);
+		}
+	}
 }
 
 #if UE_BUILD_DEBUG || UE_BUILD_DEVELOPMENT
@@ -47,8 +73,9 @@ void UCharacterAttributesComponent::DrawDebugAttributes() const
 		return;
 	}
 
-	const FVector TextLocation = CachedBaseCharacterOwner->GetActorLocation() + (CachedBaseCharacterOwner->GetCapsuleComponent()->GetScaledCapsuleHalfHeight() + 5.f) * FVector::UpVector;
+	const FVector TextLocation = CachedBaseCharacterOwner->GetActorLocation() + FVector(0.0f, 0.0f, 100.f);
 	DrawDebugString(GetWorld(), TextLocation, FString::Printf(TEXT("Health: %.2f / %.2f"), CurrentHealth, MaxHealth), nullptr, FColor::Green, 0.f, true);
+	DrawDebugString(GetWorld(), TextLocation - FVector(0.0f, 0.0f, 10.f), FString::Printf(TEXT("Stamina: %.2f / %.2f"), CurrentStamina, MaxStamina), nullptr, FColor::Blue, 0.f, true);
 }
 #endif
 

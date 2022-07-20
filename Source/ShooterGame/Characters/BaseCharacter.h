@@ -164,15 +164,6 @@ protected:
 	// ReSharper disable once IdentifierTypo
 	float IKInterpSpeed = 30.0f;
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Character|Movement|Sprint")
-	float MaxStamina = 100;
-
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Character|Movement|Sprint")
-	float StaminaRestoreVelocity = 30.f;
-
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Character|Movement|Sprint")
-	float StaminaConsumptionVelocity = 10.f;
-
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Character|Movement")
 	class ULedgeDetectorComponent* LedgeDetectorComponent;
 
@@ -203,10 +194,7 @@ private:
 	float IKLeftFootOffset = 0.f;
 	float IKPelvisOffset = 0.f;
 	
-	float CurrentStamina = 0.f;
-	void UpdateStamina(float DeltaTime);
-	void OnStaminaOver();
-	void OnStaminaFullCharged();
+	void OnStaminaHasChanged(bool InState);
 
 	UFUNCTION()
 	void OnReachedJumpApexHeight();

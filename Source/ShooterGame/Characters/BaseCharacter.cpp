@@ -18,8 +18,6 @@ ABaseCharacter::ABaseCharacter(const FObjectInitializer& ObjectInitializer)
 	LedgeDetectorComponent = CreateDefaultSubobject<ULedgeDetectorComponent>(TEXT("Ledge Detector"));
 
 	CharacterAttributesComponent = CreateDefaultSubobject<UCharacterAttributesComponent>(TEXT("Character Attributes"));
-	
-	CurrentStamina = MaxStamina;
 
 	GetMesh()->CastShadow = true;
 	GetMesh()->bCastDynamicShadow = true;
@@ -30,7 +28,6 @@ void ABaseCharacter::Tick(float DeltaSeconds)
 	Super::Tick(DeltaSeconds);
 	TryChangeSprintState();
 	UpdateIKSettings(DeltaSeconds);
-	UpdateStamina(DeltaSeconds);
 }
 
 void ABaseCharacter::BeginPlay()
@@ -40,6 +37,7 @@ void ABaseCharacter::BeginPlay()
 	OnReachedJumpApex.AddDynamic(this, &ABaseCharacter::OnReachedJumpApexHeight);
 	OnHardLandedDelegate.AddDynamic(this, &ABaseCharacter::ABaseCharacter::OnHardLanded);
 	CharacterAttributesComponent->OnDeathEvent.AddUObject(this, &ABaseCharacter::OnDeath);
+	CharacterAttributesComponent->OnOutOfStaminaEvent.AddUObject(this, &ABaseCharacter::OnStaminaHasChanged);
 }
 
 void ABaseCharacter::TryChangeSprintState()
@@ -63,29 +61,6 @@ void ABaseCharacter::StartSprint()
 	if (bIsCrouched)
 	{
 		UnCrouch();
-	}
-}
-
-void ABaseCharacter::UpdateStamina(float DeltaTime)
-{
-	if (BaseCharacterMovementComponent->IsSprinting() && BaseCharacterMovementComponent->Velocity.Size() > BaseCharacterMovementComponent->MaxWalkSpeed)
-	{
-		CurrentStamina -= StaminaConsumptionVelocity * DeltaTime;
-	}
-	else
-	{
-		CurrentStamina += StaminaRestoreVelocity * DeltaTime;
-	}
-
-	CurrentStamina = FMath::Clamp(CurrentStamina, 0.0f, MaxStamina);
-	
-	if (FMath::IsNearlyZero(CurrentStamina))
-	{
-		OnStaminaOver();
-	}
-	else if (CurrentStamina == MaxStamina)
-	{
-		OnStaminaFullCharged();
 	}
 }
 
@@ -333,22 +308,18 @@ bool ABaseCharacter::CanSprint()
 	return bCanSprint && !BaseCharacterMovementComponent->IsFalling();
 }
 
-void ABaseCharacter::OnStaminaOver()
+void ABaseCharacter::OnStaminaHasChanged(const bool InState)
 {
-	bCanJump = false;
-	bCanSprint = false;
-	bStaminaIsOver = true;
-	EndSprint();
-	OnSprintEnd();
-	BaseCharacterMovementComponent->SetStaminaIsOver(true);
-}
+	bCanJump = !InState;
+	bCanSprint = !InState;
+	bStaminaIsOver = InState;
+	BaseCharacterMovementComponent->SetStaminaIsOver(InState);
 
-void ABaseCharacter::OnStaminaFullCharged()
-{
-	bCanJump = true;
-	bCanSprint = true;
-	bStaminaIsOver = false;
-	BaseCharacterMovementComponent->SetStaminaIsOver(false);
+	if (InState)
+	{
+		EndSprint();
+		OnSprintEnd();
+	}
 }
 
 void ABaseCharacter::OnReachedJumpApexHeight()
