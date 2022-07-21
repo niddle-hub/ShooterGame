@@ -1,5 +1,7 @@
 #include "BaseCharacterAnimInstance.h"
 
+#include "ShooterGame/Actors/Equipment/Weapons/RangeWeaponItem.h"
+
 void UBaseCharacterAnimInstance::NativeBeginPlay()
 {
 	Super::NativeBeginPlay();
@@ -40,4 +42,10 @@ void UBaseCharacterAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
 	EquippedItemType = EquipmentComponent->GetEquippedItemType();
 
 	AimingRotation = CachedCharacter->GetBaseAimRotation();
+
+	const ARangeWeaponItem* RangeWeaponItem = EquipmentComponent->GetEquippedRangeWeapon();
+	if (IsValid(RangeWeaponItem))
+	{
+		ForeGripSocketTransform = RangeWeaponItem->GetForeGripTransform();
+	}
 }

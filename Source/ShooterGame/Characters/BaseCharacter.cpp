@@ -6,6 +6,7 @@
 #include "Kismet/GameplayStatics.h"
 #include "Kismet/KismetSystemLibrary.h"
 #include "ShooterGame/ShooterGameTypes.h"
+#include "ShooterGame/Actors/Equipment/Weapons/RangeWeaponItem.h"
 #include "ShooterGame/Actors/Interactive/Environment/Ladder.h"
 #include "ShooterGame/Actors/Interactive/Environment/Zipline.h"
 #include "ShooterGame/Components/LedgeDetectorComponent.h"
@@ -289,9 +290,22 @@ void ABaseCharacter::UnregisterInteractiveActor(AInteractiveActor* InteractiveAc
 	InteractiveActors.RemoveSingleSwap(InteractiveActor);
 }
 
-void ABaseCharacter::Fire()
+void ABaseCharacter::StartFire()
 {
-	CharacterEquipmentComponent->Fire();
+	ARangeWeaponItem* RangeWeaponItem = CharacterEquipmentComponent->GetEquippedRangeWeapon();
+	if (IsValid(RangeWeaponItem))
+	{
+		RangeWeaponItem->StartFire();
+	}
+}
+
+void ABaseCharacter::StopFire()
+{
+	ARangeWeaponItem* RangeWeaponItem = CharacterEquipmentComponent->GetEquippedRangeWeapon();
+	if (IsValid(RangeWeaponItem))
+	{
+		RangeWeaponItem->StopFire();
+	}
 }
 
 bool ABaseCharacter::CanJumpInternal_Implementation() const

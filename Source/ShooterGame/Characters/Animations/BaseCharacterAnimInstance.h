@@ -61,8 +61,11 @@ protected:
 	UPROPERTY(EditAnywhere, Transient, BlueprintReadOnly, Category = "Character|IK settings")
 	FVector PelvisBoneTransitionOffset = FVector::ZeroVector;
 
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Character|Movement")
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Character|Weapon")
 	EEquipableItemType EquippedItemType = EEquipableItemType::EIT_None;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Character|Weapon")
+	FTransform ForeGripSocketTransform;
 
 private:
 	TWeakObjectPtr<ABaseCharacter> CachedCharacter;

@@ -15,7 +15,7 @@ ARangeWeaponItem::ARangeWeaponItem()
 	WeaponBarrel->SetupAttachment(WeaponMesh, Socket::Muzzle);
 }
 
-void ARangeWeaponItem::Fire() const
+void ARangeWeaponItem::Shot() const
 {
 	checkf(GetOwner()->IsA<ABaseCharacter>(), TEXT("ARangeWeaponItem: Owner must be a ABaseCharacter"));
 	ABaseCharacter* CharacterOwner = StaticCast<ABaseCharacter*>(GetOwner());
@@ -36,8 +36,33 @@ void ARangeWeaponItem::Fire() const
 	WeaponBarrel->Shot(ViewPoint, ViewDirection, PlayerController);
 }
 
+void ARangeWeaponItem::StartFire()
+{
+	Shot();
+	if (WeaponFireMode == EWeaponFireMode::WFM_Auto)
+	{
+		GetWorldTimerManager().ClearTimer(FireTimerHandle);
+		GetWorldTimerManager().SetTimer(FireTimerHandle, this, &ARangeWeaponItem::Shot, GetFireTimerInterval(), true);
+	}
+}
+
+void ARangeWeaponItem::StopFire()
+{
+	GetWorldTimerManager().ClearTimer(FireTimerHandle);
+}
+
+FTransform ARangeWeaponItem::GetForeGripTransform() const
+{
+	return WeaponMesh->GetSocketTransform(Socket::ForeGrip);
+}
+
 float ARangeWeaponItem::PlayAnimMontage(UAnimMontage* Montage, float InPlayRate) const
 {
 	UAnimInstance* WeaponAnimInstance = WeaponMesh->GetAnimInstance();
-	return WeaponAnimInstance->Montage_Play(Montage, InPlayRate);
+	float Result = 0.f;
+	if (IsValid(WeaponAnimInstance))
+	{
+		Result = WeaponAnimInstance->Montage_Play(Montage, InPlayRate);
+	}
+	return Result;
 }

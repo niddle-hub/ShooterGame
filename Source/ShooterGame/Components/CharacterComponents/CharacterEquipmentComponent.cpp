@@ -15,14 +15,6 @@ EEquipableItemType UCharacterEquipmentComponent::GetEquippedItemType() const
 	return Result;
 }
 
-void UCharacterEquipmentComponent::Fire() const
-{
-	if (IsValid(EquippedWeapon))
-	{
-		EquippedWeapon->Fire();
-	}
-}
-
 void UCharacterEquipmentComponent::BeginPlay()
 {
 	Super::BeginPlay();

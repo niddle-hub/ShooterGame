@@ -27,7 +27,7 @@ void UWeaponBarrelComponent::Shot(const FVector ShotStart, const FVector ShotDir
 	bool IsDebugEnabled = false;
 #endif
 	
-	if(GetWorld()->LineTraceSingleByChannel(ShotResult, ShotStart, ShotEnd, ECC_Bullet))
+	if(GetWorld()->LineTraceSingleByChannel(ShotResult, MuzzleLocation, ShotEnd, ECC_Bullet))
 	{
 		ShotEnd = ShotResult.ImpactPoint;
 		AActor* HitActor = ShotResult.GetActor();

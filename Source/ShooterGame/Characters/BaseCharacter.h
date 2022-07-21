@@ -125,7 +125,8 @@ public:
 	
 	void UnregisterInteractiveActor(AInteractiveActor* InteractiveActor);
 
-	virtual void Fire();
+	virtual void StartFire();
+	virtual void StopFire();
 
 protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Character|Controls")

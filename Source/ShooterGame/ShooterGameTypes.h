@@ -23,6 +23,7 @@ namespace Socket
 	static const FName FPCamera = "CameraSocket";
 	static const FName Weapon_R = "WeaponSocket_R";
 	static const FName Muzzle = "Muzzle_Socket";
+	static const FName ForeGrip = "ForeGrip_Socket";
 }
 
 namespace NiagaraProperty
@@ -35,5 +36,6 @@ enum class EEquipableItemType : uint8
 {
 	EIT_None UMETA(DisplayName = "None"),
 	EIT_Pistol UMETA(DisplayName = "Pistol"),
+	EIT_Rifle UMETA(DisplayName = "Rifle"),
 	EIT_MAX UMETA(Hidden)
 };

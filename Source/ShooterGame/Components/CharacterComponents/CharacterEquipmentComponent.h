@@ -15,7 +15,7 @@ class SHOOTERGAME_API UCharacterEquipmentComponent : public UActorComponent
 public:
 	EEquipableItemType GetEquippedItemType() const;
 
-	void Fire() const;
+	FORCEINLINE ARangeWeaponItem* GetEquippedRangeWeapon() const { return EquippedWeapon; }
 
 protected:
 	virtual void BeginPlay() override;
