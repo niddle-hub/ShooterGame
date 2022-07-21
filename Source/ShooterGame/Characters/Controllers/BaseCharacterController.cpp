@@ -27,6 +27,7 @@ void ABaseCharacterController::SetupInputComponent()
 	InputComponent->BindAction("Sprint", IE_Released, this, &ABaseCharacterController::EndSprint);
 	InputComponent->BindAction("InteractWithLadder", IE_Pressed, this, &ABaseCharacterController::InteractWithLadder);
 	InputComponent->BindAction("Zipline", IE_Pressed, this, &ABaseCharacterController::Zipline);
+	InputComponent->BindAction("Fire", IE_Pressed, this, &ABaseCharacterController::Fire);
 }
 
 void ABaseCharacterController::MoveForward(float Value)
@@ -162,5 +163,13 @@ void ABaseCharacterController::SwimUp(float Value)
 	if (CachedCharacter.IsValid())
 	{
 		CachedCharacter->SwimUp(Value);
+	}
+}
+
+void ABaseCharacterController::Fire()
+{
+	if (CachedCharacter.IsValid())
+	{
+		CachedCharacter->Fire();
 	}
 }

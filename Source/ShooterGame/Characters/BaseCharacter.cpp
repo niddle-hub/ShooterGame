@@ -10,6 +10,7 @@
 #include "ShooterGame/Actors/Interactive/Environment/Zipline.h"
 #include "ShooterGame/Components/LedgeDetectorComponent.h"
 #include "ShooterGame/Components/CharacterComponents/CharacterAttributesComponent.h"
+#include "ShooterGame/Components/CharacterComponents/CharacterEquipmentComponent.h"
 
 ABaseCharacter::ABaseCharacter(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer.SetDefaultSubobjectClass<UBaseCharacterMovementComponent>(CharacterMovementComponentName))
@@ -18,6 +19,7 @@ ABaseCharacter::ABaseCharacter(const FObjectInitializer& ObjectInitializer)
 	LedgeDetectorComponent = CreateDefaultSubobject<ULedgeDetectorComponent>(TEXT("Ledge Detector"));
 
 	CharacterAttributesComponent = CreateDefaultSubobject<UCharacterAttributesComponent>(TEXT("Character Attributes"));
+	CharacterEquipmentComponent = CreateDefaultSubobject<UCharacterEquipmentComponent>(TEXT("Character Equipment"));
 
 	GetMesh()->CastShadow = true;
 	GetMesh()->bCastDynamicShadow = true;
@@ -287,6 +289,11 @@ void ABaseCharacter::UnregisterInteractiveActor(AInteractiveActor* InteractiveAc
 	InteractiveActors.RemoveSingleSwap(InteractiveActor);
 }
 
+void ABaseCharacter::Fire()
+{
+	CharacterEquipmentComponent->Fire();
+}
+
 bool ABaseCharacter::CanJumpInternal_Implementation() const
 {
 	return bCanJump && Super::CanJumpInternal_Implementation() &&!GetBaseCharacterMovementComponent()->IsMantling();
@@ -295,6 +302,8 @@ bool ABaseCharacter::CanJumpInternal_Implementation() const
 void ABaseCharacter::OnDeath()
 {
 	GetBaseCharacterMovementComponent()->DisableMovement();
+	bUseControllerRotationYaw = false;
+	
 	const float DeathDuration = PlayAnimMontage(OnDeathAnimMontage);
 	
 	if (DeathDuration == 0.f)

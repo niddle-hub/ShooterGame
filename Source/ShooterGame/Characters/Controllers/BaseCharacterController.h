@@ -45,5 +45,7 @@ private:
 	void SwimRight(float Value);
 	void SwimUp(float Value);
 
+	void Fire();
+
 	bool IgnoreCameraPitch = false;
 };

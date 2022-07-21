@@ -2,6 +2,7 @@
 
 #include "CoreMinimal.h"
 #include "Animation/AnimInstance.h"
+#include "ShooterGame/ShooterGameTypes.h"
 #include "ShooterGame/Characters/BaseCharacter.h"
 #include "BaseCharacterAnimInstance.generated.h"
 
@@ -48,6 +49,9 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Character|Movement", meta = (UIMin = -180.f, UIMax = 180.f))
 	float Direction = 0.f;
 
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Character|Animation")
+	FRotator AimingRotation = FRotator::ZeroRotator;
+
 	UPROPERTY(EditAnywhere, Transient, BlueprintReadOnly, Category = "Character|IK settings")
 	FVector RightFootEffectorLocation = FVector::ZeroVector;
 	
@@ -56,6 +60,9 @@ protected:
 
 	UPROPERTY(EditAnywhere, Transient, BlueprintReadOnly, Category = "Character|IK settings")
 	FVector PelvisBoneTransitionOffset = FVector::ZeroVector;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Character|Movement")
+	EEquipableItemType EquippedItemType = EEquipableItemType::EIT_None;
 
 private:
 	TWeakObjectPtr<ABaseCharacter> CachedCharacter;

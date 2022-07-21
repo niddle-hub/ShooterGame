@@ -35,4 +35,9 @@ void UBaseCharacterAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
 	RightFootEffectorLocation = FVector(CachedCharacter->GetIKRightFootOffset() + CachedCharacter->GetIKPelvisOffset(), 0.f, 0.f);
 	LeftFootEffectorLocation = FVector(-(CachedCharacter->GetIKLeftFootOffset() + CachedCharacter->GetIKPelvisOffset()), 0.f, 0.f);
 	PelvisBoneTransitionOffset = FVector(0.f, 0.f, CachedCharacter->GetIKPelvisOffset());
+
+	const UCharacterEquipmentComponent* EquipmentComponent = CachedCharacter->GetCharacterEquipmentComponent();
+	EquippedItemType = EquipmentComponent->GetEquippedItemType();
+
+	AimingRotation = CachedCharacter->GetBaseAimRotation();
 }

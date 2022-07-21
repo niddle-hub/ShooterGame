@@ -3,6 +3,7 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
 #include "ShooterGame/Actors/Interactive/InteractiveActor.h"
+#include "ShooterGame/Components/CharacterComponents/CharacterEquipmentComponent.h"
 #include "ShooterGame/Components/MovementComponents/BaseCharacterMovementComponent.h"
 #include "BaseCharacter.generated.h"
 
@@ -109,6 +110,8 @@ public:
 	
 	FORCEINLINE UBaseCharacterMovementComponent* GetBaseCharacterMovementComponent() const { return BaseCharacterMovementComponent; }
 
+	FORCEINLINE const UCharacterEquipmentComponent* GetCharacterEquipmentComponent() const { return CharacterEquipmentComponent; }
+
 	UFUNCTION(BlueprintCallable)
 	FORCEINLINE float GetIKRightFootOffset() const { return IKRightFootOffset; }
 
@@ -121,6 +124,8 @@ public:
 	void RegisterInteractiveActor(AInteractiveActor* InteractiveActor);
 	
 	void UnregisterInteractiveActor(AInteractiveActor* InteractiveActor);
+
+	virtual void Fire();
 
 protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Character|Controls")
@@ -148,7 +153,7 @@ protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Character|Attributes")
 	UCurveFloat* FallDamageCurve;
 
-	UPROPERTY()
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Character|Components")
 	UBaseCharacterMovementComponent* BaseCharacterMovementComponent;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Character|IK settings")
@@ -181,6 +186,9 @@ protected:
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Character|Movement|Mantling", meta = (ClampMin = 0.f, UIMin = 0.f))
 	float LowMantleMaxHeight = 125.f;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Character|Components")
+	class UCharacterEquipmentComponent* CharacterEquipmentComponent;
 	
 private:
 	void TryChangeSprintState();
