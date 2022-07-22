@@ -13,6 +13,8 @@ enum class EWeaponFireMode : uint8
 	WFM_MAX UMETA(Hidden)
 };
 
+DECLARE_MULTICAST_DELEGATE_OneParam(FOnAmmoChangedSignature, int32);
+
 UCLASS(Blueprintable)
 class SHOOTERGAME_API ARangeWeaponItem : public AEquipableItem
 {
@@ -26,6 +28,17 @@ public:
 
 	void StartAiming();
 	void StopAiming();
+
+	FORCEINLINE int32 GetCurrenAmmo() const { return CurrentAmmo; }
+	FORCEINLINE int32 GetMaxAmmo() const { return MaxAmmo; }
+
+	EAmmunitionType GetAmmoType() const { return AmmoType; }	
+
+	void SetAmmo(const int32 NewAmmo);
+
+	bool CanShoot() const;
+
+	bool HasInfiniteAmmo() const { return bInfiniteAmmo; }
 	
 	FORCEINLINE float GetAimFOV() const { return AimFOV; }
 	
@@ -37,7 +50,11 @@ public:
 
 	FTransform GetForeGripTransform() const;
 
+	FOnAmmoChangedSignature OnAmmoChanged;
+	
 protected:
+	virtual void BeginPlay() override;
+	
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "RangeWeapon")
 	USkeletalMeshComponent* WeaponMesh;
 
@@ -77,12 +94,26 @@ protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "RangeWeapon|Properties|Aim", DisplayName = "LookUp Modifier", meta=(UIMin = 0.0f, UIMax = 1.0f))
 	float AimLookUpModifier = 0.5f;
 
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "RangeWeapon|Properties|Ammo")
+	bool bInfiniteAmmo = false;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "RangeWeapon|Properties|Ammo")
+	bool bAutoReload = true;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "RangeWeapon|Properties|Ammo")
+	EAmmunitionType AmmoType;
+	
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "RangeWeapon|Properties|Ammo", meta=(UIMin=0))
+	int32 MaxAmmo = 30;
+
 private:
+	int32 CurrentAmmo = 0;
+	
 	float GetCurrentBulletSpreadAngle() const;
 
 	float GetCurrentFireRate() const;
 	
-	void Shot() const;
+	void Shot();
 
 	FVector GetBulletSpreadOffset(const float Angle, const FRotator ShotRotation) const;
 	

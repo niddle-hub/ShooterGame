@@ -1,6 +1,7 @@
 #include "PlayerCharacter.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "ShooterGame/Actors/Equipment/Weapons/RangeWeaponItem.h"
+#include "ShooterGame/Components/CharacterComponents/CharacterEquipmentComponent.h"
 
 APlayerCharacter::APlayerCharacter(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer)
@@ -276,7 +277,7 @@ float APlayerCharacter::GetAimLookUpModifier() const
 
 bool APlayerCharacter::AreRequiredKeysDown() const
 {
-	if (ForwardAxis < 0.1f || !FMath::IsNearlyZero(RightAxis))
+	if (ForwardAxis < 0.1f)
 	{
 		return false;
 	}

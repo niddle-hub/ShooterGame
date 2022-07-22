@@ -3,7 +3,6 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
 #include "ShooterGame/Actors/Interactive/InteractiveActor.h"
-#include "ShooterGame/Components/CharacterComponents/CharacterEquipmentComponent.h"
 #include "ShooterGame/Components/MovementComponents/BaseCharacterMovementComponent.h"
 #include "BaseCharacter.generated.h"
 
@@ -55,6 +54,10 @@ struct FHardLandingSettings
 typedef TArray<AInteractiveActor*, TInlineAllocator<10>> TInteractiveActorsArray;
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnHardLandedSignature);
+DECLARE_MULTICAST_DELEGATE_OneParam(FOnAimingStateChangedSignature, bool);
+
+class UCharacterEquipmentComponent;
+class UCharacterAttributesComponent;
 
 UCLASS(Abstract, NotBlueprintable)
 class SHOOTERGAME_API ABaseCharacter : public ACharacter
@@ -107,10 +110,16 @@ public:
 
 	UPROPERTY(BlueprintAssignable, Category = "Character")
 	FOnHardLandedSignature OnHardLandedDelegate;
+
+	FOnAimingStateChangedSignature OnAimingStateChanged;
 	
 	FORCEINLINE UBaseCharacterMovementComponent* GetBaseCharacterMovementComponent() const { return BaseCharacterMovementComponent; }
 
 	FORCEINLINE const UCharacterEquipmentComponent* GetCharacterEquipmentComponent() const { return CharacterEquipmentComponent; }
+
+	FORCEINLINE UCharacterEquipmentComponent* GetCharacterEquipmentComponent_Mutable() const { return CharacterEquipmentComponent; }
+
+	FORCEINLINE const UCharacterAttributesComponent* GetCharacterAttributesComponent() const { return CharacterAttributesComponent; }
 
 	UFUNCTION(BlueprintCallable)
 	FORCEINLINE float GetIKRightFootOffset() const { return IKRightFootOffset; }
@@ -130,6 +139,8 @@ public:
 
 	void StartAiming();
 	void StopAiming();
+
+	void ReloadEquippedWeapon() const;
 
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "BaseCharacter")
 	void OnStartAiming();
@@ -162,8 +173,8 @@ protected:
 
 	virtual void OnDeath();
 
-	virtual void OnStartAimingInternal() {};
-	virtual void OnStopAimingInternal() {};
+	virtual void OnStartAimingInternal();
+	virtual void OnStopAimingInternal();
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Character|Animations")
 	UAnimMontage* OnDeathAnimMontage;

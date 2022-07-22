@@ -339,6 +339,14 @@ void ABaseCharacter::StopAiming()
 	OnStopAiming();
 }
 
+void ABaseCharacter::ReloadEquippedWeapon() const
+{
+	if(IsValid(GetCharacterEquipmentComponent()->GetEquippedRangeWeapon()))
+	{
+		CharacterEquipmentComponent->ReloadEquippedWeapon();
+	}
+}
+
 void ABaseCharacter::OnStartAiming_Implementation()
 {
 	OnStartAimingInternal();
@@ -370,6 +378,22 @@ void ABaseCharacter::OnDeath()
 	if (DeathDuration == 0.f)
 	{
 		EnableRagdoll();
+	}
+}
+
+void ABaseCharacter::OnStartAimingInternal()
+{
+	if(OnAimingStateChanged.IsBound())
+	{
+		OnAimingStateChanged.Broadcast(true);
+	}
+}
+
+void ABaseCharacter::OnStopAimingInternal()
+{
+	if(OnAimingStateChanged.IsBound())
+	{
+		OnAimingStateChanged.Broadcast(false);
 	}
 }
 

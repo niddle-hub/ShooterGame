@@ -3,6 +3,7 @@
 #include "CoreMinimal.h"
 #include "GameFramework/PlayerController.h"
 #include "ShooterGame/Characters/BaseCharacter.h"
+#include "ShooterGame/UI/Widgets/PlayerHUDWidget.h"
 #include "BaseCharacterController.generated.h"
 
 UCLASS()
@@ -17,6 +18,9 @@ public:
 	void SetIgnoreCameraPitch(const bool NewIgnore) { IgnoreCameraPitch = NewIgnore; }
 	
 protected:
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Widgets")
+	TSubclassOf<UPlayerHUDWidget> PlayerHUDWidgetClass;
+	
 	virtual void SetupInputComponent() override;
 
 private:
@@ -51,5 +55,11 @@ private:
 	void StartAiming();
 	void StopAiming();
 
+	void Reload();
+
 	bool IgnoreCameraPitch = false;
+
+	void CreateWidgets();
+	
+	UPlayerHUDWidget* PlayerHUDWidget = nullptr;
 };

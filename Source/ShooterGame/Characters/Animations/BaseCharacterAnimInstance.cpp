@@ -1,6 +1,6 @@
 #include "BaseCharacterAnimInstance.h"
-
 #include "ShooterGame/Actors/Equipment/Weapons/RangeWeaponItem.h"
+#include "ShooterGame/Components/CharacterComponents/CharacterEquipmentComponent.h"
 
 void UBaseCharacterAnimInstance::NativeBeginPlay()
 {

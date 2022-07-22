@@ -15,6 +15,12 @@ ARangeWeaponItem::ARangeWeaponItem()
 	WeaponBarrel->SetupAttachment(WeaponMesh, Socket::Muzzle);
 }
 
+void ARangeWeaponItem::BeginPlay()
+{
+	Super::BeginPlay();
+	SetAmmo(MaxAmmo);
+}
+
 float ARangeWeaponItem::GetCurrentBulletSpreadAngle() const
 {
 	const float AngleDegrees = bIsAiming ? AimSpreadAngle : SpreadAngle;
@@ -26,10 +32,20 @@ float ARangeWeaponItem::GetCurrentFireRate() const
 	return  bIsAiming ? AimingFireRate : FireRate;
 }
 
-void ARangeWeaponItem::Shot() const
+void ARangeWeaponItem::Shot()
 {
 	checkf(GetOwner()->IsA<ABaseCharacter>(), TEXT("ARangeWeaponItem: Owner must be a ABaseCharacter"));
 	ABaseCharacter* CharacterOwner = StaticCast<ABaseCharacter*>(GetOwner());
+
+	if (!CanShoot())
+	{
+		StopFire();
+		if (CurrentAmmo == 0 && bAutoReload)
+		{
+			CharacterOwner->ReloadEquippedWeapon();
+		}
+		return;
+	}
 	
 	CharacterOwner->PlayAnimMontage(CharacterFireMontage);
 	PlayAnimMontage(FireMontage);
@@ -46,6 +62,12 @@ void ARangeWeaponItem::Shot() const
 	ViewDirection += GetBulletSpreadOffset(FMath::RandRange(0.f, GetCurrentBulletSpreadAngle()), ViewRotation);
 	
 	WeaponBarrel->Shot(ViewPoint, ViewDirection, PlayerController);
+	
+	if (!bInfiniteAmmo)
+	{
+		CurrentAmmo--;
+		SetAmmo(CurrentAmmo);
+	}
 }
 
 FVector ARangeWeaponItem::GetBulletSpreadOffset(const float Angle, const FRotator ShotRotation) const
@@ -90,10 +112,25 @@ void ARangeWeaponItem::StopAiming()
 	WeaponBarrel->SetIsAiming(false);
 }
 
+void ARangeWeaponItem::SetAmmo(const int32 NewAmmo)
+{
+	CurrentAmmo = NewAmmo;
+	if (OnAmmoChanged.IsBound())
+	{
+		OnAmmoChanged.Broadcast(CurrentAmmo);
+	}
+}
+
+bool ARangeWeaponItem::CanShoot() const
+{
+	return CurrentAmmo > 0 || bInfiniteAmmo;
+}
+
 FTransform ARangeWeaponItem::GetForeGripTransform() const
 {
 	return WeaponMesh->GetSocketTransform(Socket::ForeGrip);
 }
+
 
 float ARangeWeaponItem::PlayAnimMontage(UAnimMontage* Montage, float InPlayRate) const
 {
