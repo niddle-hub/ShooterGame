@@ -46,6 +46,8 @@ void ARangeWeaponItem::Shot()
 		}
 		return;
 	}
+
+	StopReload(false);
 	
 	CharacterOwner->PlayAnimMontage(CharacterFireMontage);
 	PlayAnimMontage(FireMontage);
@@ -112,12 +114,50 @@ void ARangeWeaponItem::StopAiming()
 	WeaponBarrel->SetIsAiming(false);
 }
 
+void ARangeWeaponItem::StartReload()
+{
+	checkf(GetOwner()->IsA<ABaseCharacter>(), TEXT("ARangeWeaponItem: Owner must be a ABaseCharacter"));
+	ABaseCharacter* CharacterOwner = StaticCast<ABaseCharacter*>(GetOwner());
+
+	bIsReloading = true;
+	
+	if (IsValid(CharacterReloadMontage))
+	{
+		const float MontageDuration = CharacterOwner->PlayAnimMontage(CharacterReloadMontage);
+		PlayAnimMontage(ReloadMontage);
+		GetWorldTimerManager().SetTimer(ReloadingTimerHandle, [&]()
+		{
+			StopReload(true);
+		}, MontageDuration, false);
+	}
+	else
+	{
+		StopReload(true);
+	}
+}
+
+void ARangeWeaponItem::StopReload(bool IsSuccess)
+{
+	if (!bIsReloading)
+	{
+		return;
+	}
+
+	GetWorldTimerManager().ClearTimer(ReloadingTimerHandle);
+	
+	bIsReloading = false;
+	if (IsSuccess && OnReloadCompleteDelegate.IsBound())
+	{
+		OnReloadCompleteDelegate.Broadcast();
+	}
+}
+
 void ARangeWeaponItem::SetAmmo(const int32 NewAmmo)
 {
 	CurrentAmmo = NewAmmo;
-	if (OnAmmoChanged.IsBound())
+	if (OnAmmoChangedDelegate.IsBound())
 	{
-		OnAmmoChanged.Broadcast(CurrentAmmo);
+		OnAmmoChangedDelegate.Broadcast(CurrentAmmo);
 	}
 }
 

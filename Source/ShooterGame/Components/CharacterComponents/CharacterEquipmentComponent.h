@@ -23,7 +23,7 @@ public:
 
 	FOnEquippedWeaponAmmoChangedSignature OnEquippedWeaponAmmoChangedDelegate;
 
-	void ReloadEquippedWeapon();
+	void ReloadEquippedWeapon() const;
 
 protected:
 	virtual void BeginPlay() override;
@@ -41,7 +41,10 @@ private:
 	ARangeWeaponItem* EquippedWeapon;
 
 	UFUNCTION()
-	void OnEquippedWeaponAmmoChanged(int32 NewAmmo);
+	void OnEquippedWeaponAmmoChanged(int32 NewAmmo) const;
+
+	UFUNCTION()
+	void OnEquippedWeaponReloaded();
 
 	TWeakObjectPtr<class ABaseCharacter> OwnerCharacter;
 

@@ -14,6 +14,7 @@ enum class EWeaponFireMode : uint8
 };
 
 DECLARE_MULTICAST_DELEGATE_OneParam(FOnAmmoChangedSignature, int32);
+DECLARE_MULTICAST_DELEGATE(FOnReloadCompleteSignature);
 
 UCLASS(Blueprintable)
 class SHOOTERGAME_API ARangeWeaponItem : public AEquipableItem
@@ -29,6 +30,9 @@ public:
 	void StartAiming();
 	void StopAiming();
 
+	void StartReload();
+	void StopReload(bool IsSuccess);
+
 	FORCEINLINE int32 GetCurrenAmmo() const { return CurrentAmmo; }
 	FORCEINLINE int32 GetMaxAmmo() const { return MaxAmmo; }
 
@@ -39,6 +43,8 @@ public:
 	bool CanShoot() const;
 
 	bool HasInfiniteAmmo() const { return bInfiniteAmmo; }
+
+	bool IsFullClip() const { return CurrentAmmo == MaxAmmo; }
 	
 	FORCEINLINE float GetAimFOV() const { return AimFOV; }
 	
@@ -50,7 +56,8 @@ public:
 
 	FTransform GetForeGripTransform() const;
 
-	FOnAmmoChangedSignature OnAmmoChanged;
+	FOnAmmoChangedSignature OnAmmoChangedDelegate;
+	FOnReloadCompleteSignature OnReloadCompleteDelegate;
 	
 protected:
 	virtual void BeginPlay() override;
@@ -63,6 +70,12 @@ protected:
 	
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "RangeWeapon|Animations")
 	UAnimMontage* CharacterFireMontage;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "RangeWeapon|Animations")
+	UAnimMontage* ReloadMontage;
+	
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "RangeWeapon|Animations")
+	UAnimMontage* CharacterReloadMontage;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "RangeWeapon|Components")
 	class UWeaponBarrelComponent* WeaponBarrel;
@@ -122,6 +135,9 @@ private:
 	float PlayAnimMontage(UAnimMontage* Montage, float InPlayRate = 1.f) const;
 
 	FTimerHandle FireTimerHandle;
+	FTimerHandle ReloadingTimerHandle;
 	
 	bool bIsAiming = false;
+
+	bool bIsReloading = false;
 };

@@ -15,28 +15,23 @@ EEquipableItemType UCharacterEquipmentComponent::GetEquippedItemType() const
 	return Result;
 }
 
-void UCharacterEquipmentComponent::ReloadEquippedWeapon()
+void UCharacterEquipmentComponent::ReloadEquippedWeapon() const
 {
 	checkf(IsValid(EquippedWeapon), TEXT("Trying to reload an equipped weapon but there is no weapon equipped"));
 
-	const bool ShouldSkipReload = EquippedWeapon->HasInfiniteAmmo();
+	const bool ShouldSkipReload = EquippedWeapon->HasInfiniteAmmo() || EquippedWeapon->IsFullClip();
 	if (ShouldSkipReload)
 	{
 		return;
 	}
 	
 	const int32 AvailableAmmunition = GetAvailableAmmunitionForEquippedWeapon();
-	if (AvailableAmmunition < 0)
+	if (AvailableAmmunition <= 0)
 	{
 		return;
 	}
-	
-	const int32 CurrentAmmo = EquippedWeapon->GetCurrenAmmo();
-	const int32 AmmoToReload = EquippedWeapon->GetMaxAmmo() - CurrentAmmo;
-	const int32 ReloadedAmmo = FMath::Min(AvailableAmmunition, AmmoToReload);
-	
-	AmmunitionArray[static_cast<uint32>(EquippedWeapon->GetAmmoType())] -= ReloadedAmmo;
-	EquippedWeapon->SetAmmo(ReloadedAmmo + CurrentAmmo);
+
+	EquippedWeapon->StartReload();
 }
 
 void UCharacterEquipmentComponent::BeginPlay()
@@ -63,17 +58,29 @@ void UCharacterEquipmentComponent::CreateLoadout()
 	EquippedWeapon = GetWorld()->SpawnActor<ARangeWeaponItem>(RangeWeaponItemClass);
 	EquippedWeapon->AttachToComponent(OwnerCharacter->GetMesh(), FAttachmentTransformRules::KeepRelativeTransform, Socket::Weapon_R);
 	EquippedWeapon->SetOwner(OwnerCharacter.Get());
-	EquippedWeapon->OnAmmoChanged.AddUObject(this, &UCharacterEquipmentComponent::OnEquippedWeaponAmmoChanged);
+	EquippedWeapon->OnAmmoChangedDelegate.AddUObject(this, &UCharacterEquipmentComponent::OnEquippedWeaponAmmoChanged);
+	EquippedWeapon->OnReloadCompleteDelegate.AddUObject(this, &UCharacterEquipmentComponent::OnEquippedWeaponReloaded);
 	OnEquippedWeaponAmmoChanged(EquippedWeapon->GetCurrenAmmo());
 }
 
-void UCharacterEquipmentComponent::OnEquippedWeaponAmmoChanged(int32 NewAmmo)
+void UCharacterEquipmentComponent::OnEquippedWeaponAmmoChanged(const int32 NewAmmo) const
 {
 	if (OnEquippedWeaponAmmoChangedDelegate.IsBound())
 	{
 		const int32 NewTotalAmmo = GetAvailableAmmunitionForEquippedWeapon();
 		OnEquippedWeaponAmmoChangedDelegate.Broadcast(NewAmmo, NewTotalAmmo);
 	}
+}
+
+void UCharacterEquipmentComponent::OnEquippedWeaponReloaded()
+{
+	const int32 AvailableAmmunition = GetAvailableAmmunitionForEquippedWeapon();
+	const int32 CurrentAmmo = EquippedWeapon->GetCurrenAmmo();
+	const int32 AmmoToReload = EquippedWeapon->GetMaxAmmo() - CurrentAmmo;
+	const int32 ReloadedAmmo = FMath::Min(AvailableAmmunition, AmmoToReload);
+	
+	AmmunitionArray[static_cast<uint32>(EquippedWeapon->GetAmmoType())] -= ReloadedAmmo;
+	EquippedWeapon->SetAmmo(ReloadedAmmo + CurrentAmmo);
 }
 
 int32 UCharacterEquipmentComponent::GetAvailableAmmunitionForEquippedWeapon() const
