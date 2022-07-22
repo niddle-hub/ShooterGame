@@ -70,7 +70,7 @@ public:
 	virtual void MoveForward(const float Value) {}
 	virtual void MoveRight(const float Value) {}
 	
-	virtual void Turn(float Value) {};
+	virtual void Turn(float Value) {}
 	virtual void LookUp(float Value) {};
 	virtual void TurnAtRate(float Value) {};
 	virtual void LookUpAtRate(float Value) {};
@@ -125,8 +125,22 @@ public:
 	
 	void UnregisterInteractiveActor(AInteractiveActor* InteractiveActor);
 
-	virtual void StartFire();
-	virtual void StopFire();
+	void StartFire();
+	void StopFire();
+
+	void StartAiming();
+	void StopAiming();
+
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "BaseCharacter")
+	void OnStartAiming();
+
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "BaseCharacter")
+	void OnStopAiming();
+	
+	float GetAimingMovementSpeed() const;
+
+	UFUNCTION(BlueprintCallable)
+	FORCEINLINE bool IsAiming() const { return bIsAiming; }
 
 protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Character|Controls")
@@ -147,6 +161,9 @@ protected:
 	virtual bool CanJumpInternal_Implementation() const override;
 
 	virtual void OnDeath();
+
+	virtual void OnStartAimingInternal() {};
+	virtual void OnStopAimingInternal() {};
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Character|Animations")
 	UAnimMontage* OnDeathAnimMontage;
@@ -189,7 +206,7 @@ protected:
 	float LowMantleMaxHeight = 125.f;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Character|Components")
-	class UCharacterEquipmentComponent* CharacterEquipmentComponent;
+	UCharacterEquipmentComponent* CharacterEquipmentComponent;
 	
 private:
 	void TryChangeSprintState();
@@ -219,6 +236,9 @@ private:
 	bool bCanSprint = true;
 	bool bCanJump = true;
 	bool bStaminaIsOver = false;
+	bool bIsAiming = false;
+
+	float AimingMovementSpeed = 0.f;
 	
 	// ReSharper disable once CppUE4ProbableMemoryIssuesWithUObjectsInContainer
 	TInteractiveActorsArray InteractiveActors;

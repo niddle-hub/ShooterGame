@@ -67,17 +67,21 @@ float UBaseCharacterMovementComponent::GetMaxSpeed() const
 	{
 		Result = SprintSpeed;
 	}
-	if (bStaminaIsOver)
+	else if (bStaminaIsOver)
 	{
 		Result = RestWalkSpeed;
 	}
-	if (IsOnLadder())
+	else if (IsOnLadder())
 	{
 		Result = ClimbingOnLadderSpeed;
 	}
-	if (IsOnZipline())
+	else if (IsOnZipline())
 	{
 		Result = ZiplineMovementSpeed;
+	}
+	else if (GetBaseCharacterOwner()->IsAiming())
+	{
+		Result = GetBaseCharacterOwner()->GetAimingMovementSpeed();
 	}
 	return Result;
 }

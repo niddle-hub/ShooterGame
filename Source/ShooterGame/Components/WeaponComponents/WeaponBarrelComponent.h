@@ -5,6 +5,24 @@
 #include "Components/SceneComponent.h"
 #include "WeaponBarrelComponent.generated.h"
 
+USTRUCT(BlueprintType)
+struct FDecalInfo
+{
+	GENERATED_BODY()
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	UMaterialInterface* DecalMaterial;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	FVector DecalSize;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	float DecalLifeTime = 10.f;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	float DecalFadeOutTime = 5.f;
+};
+
 class UNiagaraSystem;
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
@@ -30,4 +48,7 @@ protected:
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Barrel settings|VFX")
 	UNiagaraSystem* TraceFX;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Barrel settings|Decals")
+	FDecalInfo DefaultDecal;
 };

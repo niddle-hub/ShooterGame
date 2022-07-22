@@ -46,6 +46,9 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Character|Movement")
 	bool IsStrafing = false;
 
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Character|Weapon")
+	bool bIsAiming = false;
+
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Character|Movement", meta = (UIMin = -180.f, UIMax = 180.f))
 	float Direction = 0.f;
 
@@ -66,6 +69,7 @@ protected:
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Character|Weapon")
 	FTransform ForeGripSocketTransform;
+
 
 private:
 	TWeakObjectPtr<ABaseCharacter> CachedCharacter;

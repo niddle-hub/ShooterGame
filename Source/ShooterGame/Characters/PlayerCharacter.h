@@ -57,6 +57,10 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Character|Movement|Sprint", meta = (ClmapMin = 0.f, UIMin = 0.f))
 	float TargetSpringArmLength = 500.f;
 
+	virtual void OnStartAimingInternal() override;
+
+	virtual void OnStopAimingInternal() override;
+
 private:
 	FTimeline SpringArmSprintTimeline;
 	void SpringArmSprintTimelineUpdate(const float Alpha) const;

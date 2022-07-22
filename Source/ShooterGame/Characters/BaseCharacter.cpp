@@ -308,6 +308,52 @@ void ABaseCharacter::StopFire()
 	}
 }
 
+void ABaseCharacter::StartAiming()
+{
+	ARangeWeaponItem* CurrentRangeWeapon = CharacterEquipmentComponent->GetEquippedRangeWeapon();
+	if (!IsValid(CurrentRangeWeapon))
+	{
+		return;
+	}
+	bIsAiming = true;
+	AimingMovementSpeed = CurrentRangeWeapon->GetAimingMaxMovementSpeed();
+	CurrentRangeWeapon->StartAiming();
+	OnStartAiming();
+}
+
+void ABaseCharacter::StopAiming()
+{
+	if (!bIsAiming)
+	{
+		return;
+	}
+	
+	ARangeWeaponItem* CurrentRangeWeapon = CharacterEquipmentComponent->GetEquippedRangeWeapon();
+	if (IsValid(CurrentRangeWeapon))
+	{
+		CurrentRangeWeapon->StopAiming();
+	}
+	
+	bIsAiming = false;
+	AimingMovementSpeed = 0.0f;
+	OnStopAiming();
+}
+
+void ABaseCharacter::OnStartAiming_Implementation()
+{
+	OnStartAimingInternal();
+}
+
+void ABaseCharacter::OnStopAiming_Implementation()
+{
+	OnStopAimingInternal();
+}
+
+float ABaseCharacter::GetAimingMovementSpeed() const
+{
+	return AimingMovementSpeed;
+}
+
 bool ABaseCharacter::CanJumpInternal_Implementation() const
 {
 	return bCanJump && Super::CanJumpInternal_Implementation() &&!GetBaseCharacterMovementComponent()->IsMantling();

@@ -24,6 +24,13 @@ public:
 	void StartFire();
 	void StopFire();
 
+	void StartAiming();
+	void StopAiming();
+	
+	FORCEINLINE float GetAimFOV() const { return AimFOV; }
+	
+	FORCEINLINE float GetAimingMaxMovementSpeed() const { return AimMovementMaxSpeed; }
+
 	FTransform GetForeGripTransform() const;
 
 protected:
@@ -45,8 +52,24 @@ protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "RangeWeapon|Properties", meta=(ToolTip = "Rate in rounds per minute", UIMin = 1.0f))
 	float FireRate = 300.f;
 
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "RangeWeapon|Properties", meta=(ToolTip = "Bullet spread half angle in degrees", UIMin = 0.0f, UIMax = 10.0f))
+	float SpreadAngle = 1.f;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "RangeWeapon|Properties|Aim", DisplayName = "Spread Angle", meta=(UIMin = 0.0f))
+	float AimSpreadAngle = 0.25f;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "RangeWeapon|Properties|Aim", DisplayName = "Max Movement Speed")
+	float AimMovementMaxSpeed = 200.f;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "RangeWeapon|Properties|Aim", DisplayName = "Field Of View")
+	float AimFOV = 60.f;
+
 private:
+	float GetCurrentBulletSpreadAngle() const;
+	
 	void Shot() const;
+
+	FVector GetBulletSpreadOffset(const float Angle, const FRotator ShotRotation) const;
 	
 	float GetFireTimerInterval() const { return 60.f / FireRate; };
 	
@@ -54,5 +77,5 @@ private:
 
 	FTimerHandle FireTimerHandle;
 	
-	
+	bool bIsAiming = false;
 };

@@ -10,6 +10,7 @@
 
 #include "NiagaraComponent.h"
 #include "NiagaraFunctionLibrary.h"
+#include "Components/DecalComponent.h"
 
 void UWeaponBarrelComponent::Shot(const FVector ShotStart, const FVector ShotDirection, AController* Controller) const
 {
@@ -27,7 +28,7 @@ void UWeaponBarrelComponent::Shot(const FVector ShotStart, const FVector ShotDir
 	bool IsDebugEnabled = false;
 #endif
 	
-	if(GetWorld()->LineTraceSingleByChannel(ShotResult, MuzzleLocation, ShotEnd, ECC_Bullet))
+	if(GetWorld()->LineTraceSingleByChannel(ShotResult, ShotStart, ShotEnd, ECC_Bullet))
 	{
 		ShotEnd = ShotResult.ImpactPoint;
 		AActor* HitActor = ShotResult.GetActor();
@@ -40,6 +41,14 @@ void UWeaponBarrelComponent::Shot(const FVector ShotStart, const FVector ShotDir
 			}
 			HitActor->TakeDamage(DamageAmount, FDamageEvent(), Controller, GetOwner());
 		}
+
+		UDecalComponent* DecalComponent = UGameplayStatics::SpawnDecalAtLocation(GetWorld(), DefaultDecal.DecalMaterial, DefaultDecal.DecalSize, ShotResult.ImpactPoint, ShotResult.ImpactNormal.ToOrientationRotator());
+		if (IsValid(DecalComponent))
+		{
+			DecalComponent->SetFadeScreenSize(0.001f);
+			DecalComponent->SetFadeOut(DefaultDecal.DecalLifeTime, DefaultDecal.DecalFadeOutTime);
+		}
+		
 		if (IsDebugEnabled)
 		{
 			DrawDebugPoint(GetWorld(), ShotEnd, 10.f, FColor::Red, false, 5.f);

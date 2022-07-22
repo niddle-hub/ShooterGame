@@ -1,5 +1,6 @@
 #include "PlayerCharacter.h"
 #include "GameFramework/CharacterMovementComponent.h"
+#include "ShooterGame/Actors/Equipment/Weapons/RangeWeaponItem.h"
 
 APlayerCharacter::APlayerCharacter(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer)
@@ -174,6 +175,39 @@ void APlayerCharacter::SwimUp(float Value)
 	if (GetCharacterMovement()->IsSwimming() && !FMath::IsNearlyZero(Value, 1e-6f))
 	{
 		AddMovementInput(FVector::UpVector, Value);
+	}
+}
+
+void APlayerCharacter::OnStartAimingInternal()
+{
+	Super::OnStartAimingInternal();
+	const APlayerController* PlayerController = GetController<APlayerController>();
+	if (!IsValid(PlayerController))
+	{
+		return;
+	}
+
+	APlayerCameraManager* PlayerCameraManager = PlayerController->PlayerCameraManager;
+	if (IsValid(PlayerCameraManager))
+	{
+		const ARangeWeaponItem* CurrentRangeWeapon = GetCharacterEquipmentComponent()->GetEquippedRangeWeapon();
+		PlayerCameraManager->SetFOV(CurrentRangeWeapon->GetAimFOV());
+	}
+}
+
+void APlayerCharacter::OnStopAimingInternal()
+{
+	Super::OnStopAimingInternal();
+	const APlayerController* PlayerController = GetController<APlayerController>();
+	if (!IsValid(PlayerController))
+	{
+		return;
+	}
+
+	APlayerCameraManager* PlayerCameraManager = PlayerController->PlayerCameraManager;
+	if (IsValid(PlayerCameraManager))
+	{
+		PlayerCameraManager->UnlockFOV();
 	}
 }
 

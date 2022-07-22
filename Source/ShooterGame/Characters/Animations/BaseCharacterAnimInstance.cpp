@@ -26,6 +26,7 @@ void UBaseCharacterAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
 	IsOutOfStamina = CharacterMovementComponent->GetStaminaIsOver();
 	IsSwimming = CharacterMovementComponent->IsSwimming();
 	IsOnLadder = CharacterMovementComponent->IsOnLadder();
+	bIsAiming = CachedCharacter->IsAiming();
 	if (IsOnLadder)
 	{
 		LadderSpeedRatio = CharacterMovementComponent->GetLadderSpeedRatio();

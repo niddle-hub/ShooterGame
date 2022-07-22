@@ -27,8 +27,10 @@ void ABaseCharacterController::SetupInputComponent()
 	InputComponent->BindAction("Sprint", IE_Released, this, &ABaseCharacterController::EndSprint);
 	InputComponent->BindAction("InteractWithLadder", IE_Pressed, this, &ABaseCharacterController::InteractWithLadder);
 	InputComponent->BindAction("Zipline", IE_Pressed, this, &ABaseCharacterController::Zipline);
-	InputComponent->BindAction("Fire", IE_Pressed, this, &ABaseCharacterController::StartFire);
-	InputComponent->BindAction("Fire", IE_Released, this, &ABaseCharacterController::StopFire);
+	InputComponent->BindAction("Fire", IE_Pressed, this, &ABaseCharacterController::InternalStartFire);
+	InputComponent->BindAction("Fire", IE_Released, this, &ABaseCharacterController::InternalStopFire);
+	InputComponent->BindAction("Aim", IE_Pressed, this, &ABaseCharacterController::StartAiming);
+	InputComponent->BindAction("Aim", IE_Released, this, &ABaseCharacterController::StopAiming);
 }
 
 void ABaseCharacterController::MoveForward(float Value)
@@ -167,7 +169,7 @@ void ABaseCharacterController::SwimUp(float Value)
 	}
 }
 
-void ABaseCharacterController::StartFire()
+void ABaseCharacterController::InternalStartFire()
 {
 	if (CachedCharacter.IsValid())
 	{
@@ -175,10 +177,26 @@ void ABaseCharacterController::StartFire()
 	}
 }
 
-void ABaseCharacterController::StopFire()
+void ABaseCharacterController::InternalStopFire()
 {
 	if (CachedCharacter.IsValid())
 	{
 		CachedCharacter->StopFire();
+	}
+}
+
+void ABaseCharacterController::StartAiming()
+{
+	if(CachedCharacter.IsValid())
+	{
+		CachedCharacter->StartAiming();
+	}
+}
+
+void ABaseCharacterController::StopAiming()
+{
+	if (CachedCharacter.IsValid())
+	{
+		CachedCharacter->StopAiming();
 	}
 }

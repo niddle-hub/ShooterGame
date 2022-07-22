@@ -45,8 +45,11 @@ private:
 	void SwimRight(float Value);
 	void SwimUp(float Value);
 
-	void StartFire();
-	void StopFire();
+	void InternalStartFire();
+	void InternalStopFire();
+	
+	void StartAiming();
+	void StopAiming();
 
 	bool IgnoreCameraPitch = false;
 };
