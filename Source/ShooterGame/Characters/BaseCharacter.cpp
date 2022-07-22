@@ -290,7 +290,7 @@ void ABaseCharacter::UnregisterInteractiveActor(AInteractiveActor* InteractiveAc
 	InteractiveActors.RemoveSingleSwap(InteractiveActor);
 }
 
-void ABaseCharacter::StartFire()
+void ABaseCharacter::StartFire() const
 {
 	ARangeWeaponItem* RangeWeaponItem = CharacterEquipmentComponent->GetEquippedRangeWeapon();
 	if (IsValid(RangeWeaponItem))
@@ -299,7 +299,7 @@ void ABaseCharacter::StartFire()
 	}
 }
 
-void ABaseCharacter::StopFire()
+void ABaseCharacter::StopFire() const
 {
 	ARangeWeaponItem* RangeWeaponItem = CharacterEquipmentComponent->GetEquippedRangeWeapon();
 	if (IsValid(RangeWeaponItem))
@@ -342,6 +342,7 @@ void ABaseCharacter::StopAiming()
 void ABaseCharacter::OnStartAiming_Implementation()
 {
 	OnStartAimingInternal();
+	EndSprint();
 }
 
 void ABaseCharacter::OnStopAiming_Implementation()
@@ -387,7 +388,6 @@ void ABaseCharacter::OnStaminaHasChanged(const bool InState)
 	if (InState)
 	{
 		EndSprint();
-		OnSprintEnd();
 	}
 }
 

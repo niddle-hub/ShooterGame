@@ -125,8 +125,8 @@ public:
 	
 	void UnregisterInteractiveActor(AInteractiveActor* InteractiveActor);
 
-	void StartFire();
-	void StopFire();
+	void StartFire() const;
+	void StopFire() const;
 
 	void StartAiming();
 	void StopAiming();

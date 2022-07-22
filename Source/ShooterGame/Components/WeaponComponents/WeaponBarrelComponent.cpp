@@ -15,7 +15,7 @@
 void UWeaponBarrelComponent::Shot(const FVector ShotStart, const FVector ShotDirection, AController* Controller) const
 {
 	const FVector MuzzleLocation = GetComponentLocation();
-	FVector ShotEnd = ShotStart + FireRange * ShotDirection;
+	FVector ShotEnd = ShotStart + GetCurrentFireRange() * ShotDirection;
 
 	UNiagaraFunctionLibrary::SpawnSystemAtLocation(GetWorld(), FireFX, MuzzleLocation, GetComponentRotation());
 
@@ -34,10 +34,10 @@ void UWeaponBarrelComponent::Shot(const FVector ShotStart, const FVector ShotDir
 		AActor* HitActor = ShotResult.GetActor();
 		if (IsValid(HitActor))
 		{
-			float DamageAmount = BaseDamage;
+			float DamageAmount = GetCurrentDamage();
 			if(IsValid(DamageCurve))
 			{
-				DamageAmount = BaseDamage * DamageCurve->GetFloatValue(ShotResult.Distance);
+				DamageAmount = GetCurrentDamage() * DamageCurve->GetFloatValue(ShotResult.Distance);
 			}
 			HitActor->TakeDamage(DamageAmount, FDamageEvent(), Controller, GetOwner());
 		}
@@ -62,4 +62,14 @@ void UWeaponBarrelComponent::Shot(const FVector ShotStart, const FVector ShotDir
 	{
 		DrawDebugLine(GetWorld(), MuzzleLocation, ShotEnd, FColor::Red, false, 5.f, 0.f, 1.f);
 	}
+}
+
+float UWeaponBarrelComponent::GetCurrentFireRange() const
+{
+	return bIsAiming ? AimingFireRange : FireRange;
+}
+
+float UWeaponBarrelComponent::GetCurrentDamage() const
+{
+	return bIsAiming ? AimingDamage : BaseDamage;
 }

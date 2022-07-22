@@ -33,12 +33,20 @@ void APlayerCharacter::BeginPlay()
 		SpringArmTimelineUpdate.BindUObject(this, &APlayerCharacter::SpringArmSprintTimelineUpdate);
 		SpringArmSprintTimeline.AddInterpFloat(SprintTimelineCurve, SpringArmTimelineUpdate);
 	}
+
+	if (IsValid(AimingTimelineCurve))
+	{
+		FOnTimelineFloatStatic AimingTimelineUpdate;
+		AimingTimelineUpdate.BindUObject(this, &APlayerCharacter::AimingFOVTimelineUpdate);
+		AimingFOVTimeline.AddInterpFloat(AimingTimelineCurve, AimingTimelineUpdate);
+	}
 }
 
 void APlayerCharacter::Tick(float DeltaSeconds)
 {
 	Super::Tick(DeltaSeconds);
 	SpringArmSprintTimeline.TickTimeline(DeltaSeconds);
+	AimingFOVTimeline.TickTimeline(DeltaSeconds);
 	
 	if (!AreRequiredKeysDown())
 	{
@@ -71,22 +79,22 @@ void APlayerCharacter::MoveRight(float Value)
 
 void APlayerCharacter::Turn(float Value)
 {
-	AddControllerYawInput(Value);
+	AddControllerYawInput(Value * GetAimTurnModifier());
 }
 
 void APlayerCharacter::LookUp(float Value)
 {
-	AddControllerPitchInput(Value);
+	AddControllerPitchInput(Value * GetAimLookUpModifier());
 }
 
 void APlayerCharacter::TurnAtRate(float Value)
 {
-	AddControllerYawInput(Value * BaseTurnRate * GetWorld()->GetDeltaSeconds());
+	AddControllerYawInput(Value * GetAimTurnModifier() * BaseTurnRate * GetWorld()->GetDeltaSeconds());
 }
 
 void APlayerCharacter::LookUpAtRate(float Value)
 {
-	AddControllerPitchInput(Value * BaseLookUpRate * GetWorld()->GetDeltaSeconds());
+	AddControllerPitchInput(Value * GetAimLookUpModifier() * BaseLookUpRate * GetWorld()->GetDeltaSeconds());
 }
 
 void APlayerCharacter::ChangeCrouchState()
@@ -141,6 +149,7 @@ bool APlayerCharacter::CanSprint()
 void APlayerCharacter::OnSprintStart_Implementation()
 {
 	SpringArmSprintTimeline.Play();
+	StopAiming();
 }
 
 void APlayerCharacter::OnSprintEnd_Implementation()
@@ -181,33 +190,49 @@ void APlayerCharacter::SwimUp(float Value)
 void APlayerCharacter::OnStartAimingInternal()
 {
 	Super::OnStartAimingInternal();
-	const APlayerController* PlayerController = GetController<APlayerController>();
-	if (!IsValid(PlayerController))
-	{
-		return;
-	}
 
-	APlayerCameraManager* PlayerCameraManager = PlayerController->PlayerCameraManager;
-	if (IsValid(PlayerCameraManager))
+	if (!IsValid(AimingTimelineCurve))
 	{
-		const ARangeWeaponItem* CurrentRangeWeapon = GetCharacterEquipmentComponent()->GetEquippedRangeWeapon();
-		PlayerCameraManager->SetFOV(CurrentRangeWeapon->GetAimFOV());
+		const APlayerController* PlayerController = GetController<APlayerController>();
+		if (!IsValid(PlayerController))
+		{
+			return;
+		}
+
+		APlayerCameraManager* PlayerCameraManager = PlayerController->PlayerCameraManager;
+		if (IsValid(PlayerCameraManager))
+		{
+			const ARangeWeaponItem* CurrentRangeWeapon = GetCharacterEquipmentComponent()->GetEquippedRangeWeapon();
+			PlayerCameraManager->SetFOV(CurrentRangeWeapon->GetAimFOV());
+		}
+	}
+	else
+	{
+		AimingFOVTimeline.Play();
 	}
 }
 
 void APlayerCharacter::OnStopAimingInternal()
 {
 	Super::OnStopAimingInternal();
-	const APlayerController* PlayerController = GetController<APlayerController>();
-	if (!IsValid(PlayerController))
+	
+	if (!IsValid(AimingTimelineCurve))
 	{
-		return;
-	}
+		const APlayerController* PlayerController = GetController<APlayerController>();
+		if (!IsValid(PlayerController))
+		{
+			return;
+		}
 
-	APlayerCameraManager* PlayerCameraManager = PlayerController->PlayerCameraManager;
-	if (IsValid(PlayerCameraManager))
+		APlayerCameraManager* PlayerCameraManager = PlayerController->PlayerCameraManager;
+		if (IsValid(PlayerCameraManager))
+		{
+			PlayerCameraManager->UnlockFOV();
+		}
+	}
+	else
 	{
-		PlayerCameraManager->UnlockFOV();
+		AimingFOVTimeline.Reverse();
 	}
 }
 
@@ -217,9 +242,41 @@ void APlayerCharacter::SpringArmSprintTimelineUpdate(const float Alpha) const
 	SpringArmComponent->TargetArmLength = SpringArmTargetLength;
 }
 
+void APlayerCharacter::AimingFOVTimelineUpdate(const float Alpha) const
+{
+	const APlayerController* PlayerController = GetController<APlayerController>();
+	if (!IsValid(PlayerController))
+	{
+		return;
+	}
+	const ARangeWeaponItem* CurrentRangeWeapon = GetCharacterEquipmentComponent()->GetEquippedRangeWeapon();
+	const float TargetFOV = CurrentRangeWeapon->GetAimFOV();
+	APlayerCameraManager* PlayerCameraManager = PlayerController->PlayerCameraManager;
+	const float DefaultFOV = PlayerCameraManager->DefaultFOV;
+	
+	const float FOV = FMath::Lerp(DefaultFOV, TargetFOV, Alpha);
+	
+	if (IsValid(PlayerCameraManager))
+	{
+		PlayerCameraManager->SetFOV(FOV);
+	}
+}
+
+float APlayerCharacter::GetAimTurnModifier() const
+{
+	const float TurnModifier = CharacterEquipmentComponent->GetEquippedRangeWeapon()->GetAimTurnModifier();
+	return IsAiming() ? TurnModifier : 1.f;
+}
+
+float APlayerCharacter::GetAimLookUpModifier() const
+{
+	const float LookUpModifier = CharacterEquipmentComponent->GetEquippedRangeWeapon()->GetAimLookUpModifier();
+	return IsAiming() ? LookUpModifier : 1.f;
+}
+
 bool APlayerCharacter::AreRequiredKeysDown() const
 {
-	if (ForwardAxis < 0.1f)
+	if (ForwardAxis < 0.1f || !FMath::IsNearlyZero(RightAxis))
 	{
 		return false;
 	}

@@ -33,12 +33,20 @@ class SHOOTERGAME_API UWeaponBarrelComponent : public USceneComponent
 public:
 	void Shot(FVector ShotStart, FVector ShotDirection, AController* Controller) const;
 
+	void SetIsAiming(const bool InAiming) { bIsAiming = InAiming; }
+
 protected:
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Barrel settings|Fire")
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Barrel settings|Fire|NoScope")
 	float FireRange = 10000.f;
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Barrel settings|Damage")
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Barrel settings|Fire|Aim")
+	float AimingFireRange = 20000.f;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Barrel settings|Damage|NoScope")
 	float BaseDamage = 15.f;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Barrel settings|Damage|Aim")
+	float AimingDamage = 10.f;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Barrel settings|Damage")
 	UCurveFloat* DamageCurve;
@@ -51,4 +59,9 @@ protected:
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Barrel settings|Decals")
 	FDecalInfo DefaultDecal;
+
+private:
+	float GetCurrentFireRange() const;
+	float GetCurrentDamage() const;
+	bool bIsAiming = false;
 };

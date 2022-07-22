@@ -21,6 +21,11 @@ float ARangeWeaponItem::GetCurrentBulletSpreadAngle() const
 	return FMath::DegreesToRadians(AngleDegrees);
 }
 
+float ARangeWeaponItem::GetCurrentFireRate() const
+{
+	return  bIsAiming ? AimingFireRate : FireRate;
+}
+
 void ARangeWeaponItem::Shot() const
 {
 	checkf(GetOwner()->IsA<ABaseCharacter>(), TEXT("ARangeWeaponItem: Owner must be a ABaseCharacter"));
@@ -53,6 +58,11 @@ FVector ARangeWeaponItem::GetBulletSpreadOffset(const float Angle, const FRotato
 	return (ShotRotation.RotateVector(FVector::UpVector) * SpreadZ + ShotRotation.RotateVector(FVector::RightVector) * SpreadY) * SpreadSize;
 }
 
+float ARangeWeaponItem::GetFireTimerInterval() const
+{
+	return 60.f / GetCurrentFireRate();
+}
+
 void ARangeWeaponItem::StartFire()
 {
 	Shot();
@@ -71,11 +81,13 @@ void ARangeWeaponItem::StopFire()
 void ARangeWeaponItem::StartAiming()
 {
 	bIsAiming = true;
+	WeaponBarrel->SetIsAiming(true);
 }
 
 void ARangeWeaponItem::StopAiming()
 {
 	bIsAiming = false;
+	WeaponBarrel->SetIsAiming(false);
 }
 
 FTransform ARangeWeaponItem::GetForeGripTransform() const

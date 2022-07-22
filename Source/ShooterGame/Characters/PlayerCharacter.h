@@ -51,6 +51,9 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Character|Movement|Sprint")
 	UCurveFloat* SprintTimelineCurve;
 
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Character|Aiming")
+	UCurveFloat* AimingTimelineCurve;
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Character|Movement|Sprint", meta = (ClmapMin = 0.f, UIMin = 0.f))
 	float DefaultSpringArmLength = 300.f;
 
@@ -64,6 +67,12 @@ protected:
 private:
 	FTimeline SpringArmSprintTimeline;
 	void SpringArmSprintTimelineUpdate(const float Alpha) const;
+
+	FTimeline AimingFOVTimeline;
+	void AimingFOVTimelineUpdate(const float Alpha) const;
+
+	float GetAimTurnModifier() const;
+	float GetAimLookUpModifier() const;
 
 	float ForwardAxis = 0.f;
 	float RightAxis = 0.f;
