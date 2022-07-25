@@ -2,6 +2,7 @@
 
 #include "CoreMinimal.h"
 #include "ShooterGame/Actors/Equipment/EquipableItem.h"
+#include "ShooterGame/Characters/BaseCharacter.h"
 #include "RangeWeaponItem.generated.h"
 
 UENUM(BlueprintType)
@@ -24,6 +25,8 @@ class SHOOTERGAME_API ARangeWeaponItem : public AEquipableItem
 public:
 	ARangeWeaponItem();
 
+	virtual void SetOwner(AActor* NewOwner) override;
+
 	void StartFire();
 	void StopFire();
 
@@ -32,6 +35,8 @@ public:
 
 	void StartReload();
 	void StopReload(bool IsSuccess);
+
+	bool CheckReloadRequiredForCharacter(const ABaseCharacter* InCharacter);
 
 	FORCEINLINE int32 GetCurrenAmmo() const { return CurrentAmmo; }
 	FORCEINLINE int32 GetMaxAmmo() const { return MaxAmmo; }
@@ -125,7 +130,7 @@ private:
 	float GetCurrentBulletSpreadAngle() const;
 
 	float GetCurrentFireRate() const;
-	
+
 	void Shot();
 
 	FVector GetBulletSpreadOffset(const float Angle, const FRotator ShotRotation) const;
@@ -133,6 +138,7 @@ private:
 	float GetFireTimerInterval() const;
 	
 	float PlayAnimMontage(UAnimMontage* Montage, float InPlayRate = 1.f) const;
+	void StopAnimMontage(const UAnimMontage* Montage, float BlendOut = 0.f) const;
 
 	FTimerHandle FireTimerHandle;
 	FTimerHandle ReloadingTimerHandle;
@@ -140,4 +146,6 @@ private:
 	bool bIsAiming = false;
 
 	bool bIsReloading = false;
+
+	TWeakObjectPtr<ABaseCharacter> CharacterOwner;
 };

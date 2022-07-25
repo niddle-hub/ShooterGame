@@ -290,8 +290,24 @@ void ABaseCharacter::UnregisterInteractiveActor(AInteractiveActor* InteractiveAc
 	InteractiveActors.RemoveSingleSwap(InteractiveActor);
 }
 
+bool ABaseCharacter::CanFire() const
+{
+	const bool IsMantling = GetBaseCharacterMovementComponent()->IsMantling();
+	const bool IsFalling = GetBaseCharacterMovementComponent()->IsFalling();
+	const bool IsSprinting = GetBaseCharacterMovementComponent()->IsSprinting();
+	const bool IsOnLadder = GetBaseCharacterMovementComponent()->IsOnLadder();
+	const bool IsSwimming = GetBaseCharacterMovementComponent()->IsSwimming();
+	const bool IsEquipping = CharacterEquipmentComponent->IsEquipping();
+	
+	return !IsEquipping && !IsMantling && !IsFalling && !IsSprinting && !IsOnLadder && !IsSwimming;
+}
+
 void ABaseCharacter::StartFire() const
 {
+	if (!CanFire())
+	{
+		return;
+	}
 	ARangeWeaponItem* RangeWeaponItem = CharacterEquipmentComponent->GetEquippedRangeWeapon();
 	if (IsValid(RangeWeaponItem))
 	{
@@ -339,6 +355,16 @@ void ABaseCharacter::StopAiming()
 	OnStopAiming();
 }
 
+void ABaseCharacter::NextItem() const
+{
+	CharacterEquipmentComponent->EquipNext();
+}
+
+void ABaseCharacter::PreviousItem() const
+{
+	CharacterEquipmentComponent->EquipPrevious();
+}
+
 void ABaseCharacter::ReloadEquippedWeapon() const
 {
 	if(IsValid(GetCharacterEquipmentComponent()->GetEquippedRangeWeapon()))
@@ -370,14 +396,18 @@ bool ABaseCharacter::CanJumpInternal_Implementation() const
 
 void ABaseCharacter::OnDeath()
 {
-	GetBaseCharacterMovementComponent()->DisableMovement();
-	bUseControllerRotationYaw = false;
-	
-	const float DeathDuration = PlayAnimMontage(OnDeathAnimMontage);
-	
-	if (DeathDuration == 0.f)
+	if (!bIsDead)
 	{
-		EnableRagdoll();
+		bIsDead = true;
+		GetBaseCharacterMovementComponent()->DisableMovement();
+		bUseControllerRotationYaw = false;
+	
+		const float DeathDuration = PlayAnimMontage(OnDeathAnimMontage);
+	
+		if (DeathDuration == 0.f)
+		{
+			EnableRagdoll();
+		}
 	}
 }
 

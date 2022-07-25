@@ -14,6 +14,8 @@ class SHOOTERGAME_API ABaseCharacterController : public APlayerController
 public:
 	virtual void SetPawn(APawn* InPawn) override;
 
+	virtual void BeginPlay() override;
+
 	bool GetIgnoreCameraPitch() const { return IgnoreCameraPitch; }
 	void SetIgnoreCameraPitch(const bool NewIgnore) { IgnoreCameraPitch = NewIgnore; }
 	
@@ -56,6 +58,9 @@ private:
 	void StopAiming();
 
 	void Reload();
+
+	void NextItem();
+	void PreviousItem();
 
 	bool IgnoreCameraPitch = false;
 

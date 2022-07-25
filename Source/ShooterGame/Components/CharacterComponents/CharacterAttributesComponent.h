@@ -6,6 +6,9 @@
 #include "CharacterAttributesComponent.generated.h"
 
 DECLARE_MULTICAST_DELEGATE(FOnDeathSignature)
+DECLARE_MULTICAST_DELEGATE_OneParam(FOnStaminaChangedSignature, float)
+DECLARE_MULTICAST_DELEGATE_OneParam(FOnHealthChangedSignature, float)
+DECLARE_MULTICAST_DELEGATE_OneParam(FOnOxygeChangedSignature, float)
 DECLARE_MULTICAST_DELEGATE_OneParam(FOutOfStaminaSignature, bool)
 DECLARE_MULTICAST_DELEGATE_OneParam(FOutOfOxygenSignature, bool)
 
@@ -19,6 +22,9 @@ public:
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 	
 	FOnDeathSignature OnDeathEvent;
+	FOnStaminaChangedSignature OnStaminaChangedEvent;
+	FOnHealthChangedSignature OnHealthChangedEvent;
+	FOnOxygeChangedSignature OnOxygenChangedEvent;
 	FOutOfStaminaSignature OnOutOfStaminaEvent;
 	FOutOfOxygenSignature OnOutOfOxygenEvent;
 
@@ -29,6 +35,18 @@ public:
 	float GetMaxHealth() const { return MaxHealth; }
 
 	float GetHealthPercent() const { return CurrentHealth / MaxHealth; }
+
+	float GetOxygen() const { return CurrentOxygen; }
+
+	float GetMaxOxygen() const { return MaxOxygen; }
+
+	float GetOxygenPercent() const { return CurrentOxygen / MaxOxygen; }
+
+	float GetStamina() const { return CurrentStamina; }
+
+	float GetMaxStamina() const { return MaxStamina; }
+
+	float GetStaminaPercent() const { return CurrentStamina / MaxStamina; }
 
 protected:
 	virtual void BeginPlay() override;
@@ -61,6 +79,10 @@ protected:
 	float OxygenDamageDelay = 2.f;
 
 private:
+	void SetHealth(float NewHealth);
+	void SetStamina(float NewStamina);
+	void SetOxygen(float NewOxygen);
+	
 	float CurrentHealth = 0.f;
 	float CurrentStamina = 0.f;
 	float CurrentOxygen = 0.f;

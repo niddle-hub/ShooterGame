@@ -121,6 +121,8 @@ public:
 
 	FORCEINLINE const UCharacterAttributesComponent* GetCharacterAttributesComponent() const { return CharacterAttributesComponent; }
 
+	FORCEINLINE UCharacterAttributesComponent* GetCharacterAttributesComponent_Mutable() const { return CharacterAttributesComponent; }
+
 	UFUNCTION(BlueprintCallable)
 	FORCEINLINE float GetIKRightFootOffset() const { return IKRightFootOffset; }
 
@@ -134,11 +136,15 @@ public:
 	
 	void UnregisterInteractiveActor(AInteractiveActor* InteractiveActor);
 
+	bool CanFire() const;
 	void StartFire() const;
 	void StopFire() const;
 
 	void StartAiming();
 	void StopAiming();
+
+	void NextItem() const;
+	void PreviousItem() const;
 
 	void ReloadEquippedWeapon() const;
 
@@ -211,7 +217,7 @@ protected:
 	FHardLandingSettings HardLandingSettings;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Character|Components")
-	class UCharacterAttributesComponent* CharacterAttributesComponent;
+	UCharacterAttributesComponent* CharacterAttributesComponent;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Character|Movement|Mantling", meta = (ClampMin = 0.f, UIMin = 0.f))
 	float LowMantleMaxHeight = 125.f;
@@ -244,6 +250,7 @@ private:
 
 	const FMantlingSettings& GetMantlingSettings(float LedgeHeight) const;
 
+	bool bIsDead = false;
 	bool bCanSprint = true;
 	bool bCanJump = true;
 	bool bStaminaIsOver = false;

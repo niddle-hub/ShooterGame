@@ -13,6 +13,14 @@ ARangeWeaponItem::ARangeWeaponItem()
 	
 	WeaponBarrel = CreateDefaultSubobject<UWeaponBarrelComponent>(TEXT("WeaponBarrel"));
 	WeaponBarrel->SetupAttachment(WeaponMesh, Socket::Muzzle);
+
+	EquippedSocketName = Socket::Weapon_R;
+}
+
+void ARangeWeaponItem::SetOwner(AActor* NewOwner)
+{
+	Super::SetOwner(NewOwner);
+	CharacterOwner = StaticCast<ABaseCharacter*>(NewOwner);
 }
 
 void ARangeWeaponItem::BeginPlay()
@@ -32,21 +40,23 @@ float ARangeWeaponItem::GetCurrentFireRate() const
 	return  bIsAiming ? AimingFireRate : FireRate;
 }
 
-void ARangeWeaponItem::Shot()
+bool ARangeWeaponItem::CheckReloadRequiredForCharacter(const ABaseCharacter* InCharacter)
 {
-	checkf(GetOwner()->IsA<ABaseCharacter>(), TEXT("ARangeWeaponItem: Owner must be a ABaseCharacter"));
-	ABaseCharacter* CharacterOwner = StaticCast<ABaseCharacter*>(GetOwner());
-
 	if (!CanShoot())
 	{
 		StopFire();
 		if (CurrentAmmo == 0 && bAutoReload)
 		{
-			CharacterOwner->ReloadEquippedWeapon();
+			InCharacter->ReloadEquippedWeapon();
 		}
-		return;
+		return true;
 	}
+	return false;
+}
 
+void ARangeWeaponItem::Shot()
+{
+	if (CheckReloadRequiredForCharacter(CharacterOwner.Get())) return;
 	StopReload(false);
 	
 	CharacterOwner->PlayAnimMontage(CharacterFireMontage);
@@ -70,6 +80,8 @@ void ARangeWeaponItem::Shot()
 		CurrentAmmo--;
 		SetAmmo(CurrentAmmo);
 	}
+
+	CheckReloadRequiredForCharacter(CharacterOwner.Get());
 }
 
 FVector ARangeWeaponItem::GetBulletSpreadOffset(const float Angle, const FRotator ShotRotation) const
@@ -116,8 +128,10 @@ void ARangeWeaponItem::StopAiming()
 
 void ARangeWeaponItem::StartReload()
 {
-	checkf(GetOwner()->IsA<ABaseCharacter>(), TEXT("ARangeWeaponItem: Owner must be a ABaseCharacter"));
-	ABaseCharacter* CharacterOwner = StaticCast<ABaseCharacter*>(GetOwner());
+	if (bIsReloading)
+	{
+		return;
+	}
 
 	bIsReloading = true;
 	
@@ -143,9 +157,15 @@ void ARangeWeaponItem::StopReload(bool IsSuccess)
 		return;
 	}
 
-	GetWorldTimerManager().ClearTimer(ReloadingTimerHandle);
-	
+	if (!IsSuccess)
+	{
+		CharacterOwner->StopAnimMontage(CharacterReloadMontage);
+		StopAnimMontage(ReloadMontage);
+	}
+
 	bIsReloading = false;
+
+	GetWorldTimerManager().ClearTimer(ReloadingTimerHandle);
 	if (IsSuccess && OnReloadCompleteDelegate.IsBound())
 	{
 		OnReloadCompleteDelegate.Broadcast();
@@ -181,4 +201,13 @@ float ARangeWeaponItem::PlayAnimMontage(UAnimMontage* Montage, float InPlayRate)
 		Result = WeaponAnimInstance->Montage_Play(Montage, InPlayRate);
 	}
 	return Result;
+}
+
+void ARangeWeaponItem::StopAnimMontage(const UAnimMontage* Montage, const float BlendOut) const
+{
+	UAnimInstance* WeaponAnimInstance = WeaponMesh->GetAnimInstance();
+	if (IsValid(WeaponAnimInstance))
+	{
+		WeaponAnimInstance->Montage_Stop(BlendOut, Montage);
+	}
 }

@@ -1,7 +1,9 @@
 // ReSharper disable CppMemberFunctionMayBeConst
 #include "BaseCharacterController.h"
 
+#include "ShooterGame/Components/CharacterComponents/CharacterAttributesComponent.h"
 #include "ShooterGame/Components/CharacterComponents/CharacterEquipmentComponent.h"
+#include "ShooterGame/UI/Widgets/CharacterAttributesWidget.h"
 #include "ShooterGame/UI/Widgets/ReticleWidget.h"
 #include "ShooterGame/UI/Widgets/WeaponAmmoWidget.h"
 
@@ -9,6 +11,11 @@ void ABaseCharacterController::SetPawn(APawn* InPawn)
 {
 	Super::SetPawn(InPawn);
 	CachedCharacter = Cast<ABaseCharacter>(InPawn);
+}
+
+void ABaseCharacterController::BeginPlay()
+{
+	Super::BeginPlay();
 	CreateWidgets();
 }
 
@@ -37,6 +44,8 @@ void ABaseCharacterController::SetupInputComponent()
 	InputComponent->BindAction("Aim", IE_Pressed, this, &ABaseCharacterController::StartAiming);
 	InputComponent->BindAction("Aim", IE_Released, this, &ABaseCharacterController::StopAiming);
 	InputComponent->BindAction("Reload", IE_Pressed, this, &ABaseCharacterController::Reload);
+	InputComponent->BindAction("NextItem", IE_Pressed, this, &ABaseCharacterController::NextItem);
+	InputComponent->BindAction("PrevItem", IE_Pressed, this, &ABaseCharacterController::PreviousItem);
 }
 
 void ABaseCharacterController::MoveForward(float Value)
@@ -215,6 +224,22 @@ void ABaseCharacterController::Reload()
 	}
 }
 
+void ABaseCharacterController::NextItem()
+{
+	if (CachedCharacter.IsValid())
+	{
+		CachedCharacter->NextItem();
+	}
+}
+
+void ABaseCharacterController::PreviousItem()
+{
+	if (CachedCharacter.IsValid())
+	{
+		CachedCharacter->PreviousItem();
+	}
+}
+
 void ABaseCharacterController::CreateWidgets()
 {
 	if (!IsValid(PlayerHUDWidget))
@@ -239,6 +264,15 @@ void ABaseCharacterController::CreateWidgets()
 		{
 			UCharacterEquipmentComponent* EquipmentComponent = CachedCharacter->GetCharacterEquipmentComponent_Mutable();
 			EquipmentComponent->OnEquippedWeaponAmmoChangedDelegate.AddUFunction(WeaponAmmoWidget, FName("UpdateAmmo"));
+		}
+
+		UCharacterAttributesWidget* CharacterAttributesWidget = PlayerHUDWidget->GetCharacterAttributesWidget();
+		if (IsValid(CharacterAttributesWidget))
+		{
+			UCharacterAttributesComponent* CharacterAttributesComponent = CachedCharacter->GetCharacterAttributesComponent_Mutable();
+			CharacterAttributesComponent->OnHealthChangedEvent.AddUFunction(CharacterAttributesWidget, FName("UpdateHealth"));
+			CharacterAttributesComponent->OnStaminaChangedEvent.AddUFunction(CharacterAttributesWidget, FName("UpdateStamina"));
+			CharacterAttributesComponent->OnOxygenChangedEvent.AddUFunction(CharacterAttributesWidget, FName("UpdateOxygen"));
 		}
 	}
 }

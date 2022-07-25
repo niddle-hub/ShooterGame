@@ -48,3 +48,12 @@ enum class EAmmunitionType : uint8
 	AT_Rifle UMETA(DisplayName = "Rifle"),
 	AT_MAX UMETA(Hidden)
 };
+
+UENUM(BlueprintType)
+enum class EEquipmentSlot : uint8
+{
+	ES_None UMETA(DisplayName = "None"),
+	ES_SideArm UMETA(DisplayName = "SideArm"),
+	ES_PrimaryWeapon UMETA(DisplayName = "PrimaryWeapon"),
+	ES_MAX UMETA(Hidden)
+};

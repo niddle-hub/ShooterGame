@@ -22,9 +22,9 @@ void UCharacterAttributesComponent::BeginPlay()
 	
 	checkf(GetOwner()->IsA<ABaseCharacter>(), TEXT("UCharacterAttributesComponent can only be used with a ABaseCharacter owner"));
 
-	CurrentHealth = MaxHealth;
-	CurrentStamina = MaxStamina;
-	CurrentOxygen = MaxOxygen;
+	SetHealth(MaxHealth);
+	SetStamina(MaxStamina);
+	SetOxygen(MaxOxygen);
 	
 	CachedBaseCharacterOwner = StaticCast<ABaseCharacter*>(GetOwner());
 
@@ -42,6 +42,33 @@ void UCharacterAttributesComponent::TickComponent(float DeltaTime, ELevelTick Ti
 	UpdateOxygen(DeltaTime);
 }
 
+void UCharacterAttributesComponent::SetHealth(float NewHealth)
+{
+	CurrentHealth = FMath::Clamp(NewHealth, 0.f, MaxHealth);
+	if (OnHealthChangedEvent.IsBound())
+	{
+		OnHealthChangedEvent.Broadcast(CurrentHealth);
+	}
+}
+
+void UCharacterAttributesComponent::SetStamina(float NewStamina)
+{
+	CurrentStamina = FMath::Clamp(NewStamina, 0.f, MaxStamina);
+	if (OnStaminaChangedEvent.IsBound())
+	{
+		OnStaminaChangedEvent.Broadcast(CurrentStamina);
+	}
+}
+
+void UCharacterAttributesComponent::SetOxygen(float NewOxygen)
+{
+	CurrentOxygen = FMath::Clamp(NewOxygen, 0.f, MaxOxygen);
+	if (OnOxygenChangedEvent.IsBound())
+	{
+		OnOxygenChangedEvent.Broadcast(CurrentOxygen);
+	}
+}
+
 void UCharacterAttributesComponent::UpdateStamina(float DeltaTime)
 {
 	const UBaseCharacterMovementComponent* BaseCharacterMovementComponent = CachedBaseCharacterOwner->GetBaseCharacterMovementComponent();
@@ -53,8 +80,9 @@ void UCharacterAttributesComponent::UpdateStamina(float DeltaTime)
 	{
 		CurrentStamina += StaminaRestoreVelocity * DeltaTime;
 	}
-	CurrentStamina = FMath::Clamp(CurrentStamina, 0.0f, MaxStamina);
-
+	
+	SetStamina(CurrentStamina);
+	
 	if (OnOutOfStaminaEvent.IsBound())
 	{
 		if (FMath::IsNearlyZero(CurrentStamina))
@@ -84,13 +112,14 @@ void UCharacterAttributesComponent::UpdateOxygen(float DeltaTime)
 	{
 		CurrentOxygen += OxygenRestoreVelocity * DeltaTime;
 	}
-
-	CurrentOxygen = FMath::Clamp(CurrentOxygen, 0.0f, MaxOxygen);
-
+	
+	SetOxygen(CurrentOxygen);
+	
 	if (OnOutOfOxygenEvent.IsBound())
 	{
 		OnOutOfOxygenEvent.Broadcast(FMath::IsNearlyZero(CurrentOxygen));
 	}
+	
 }
 
 void UCharacterAttributesComponent::OnOxygenHasChanged(const bool InState)
@@ -134,7 +163,7 @@ void UCharacterAttributesComponent::OnTakeAnyDamage(AActor* DamagedActor, float 
 		return;
 	}
 
-	CurrentHealth = FMath::Clamp(CurrentHealth - Damage, 0.f, MaxHealth);
+	SetHealth(CurrentHealth - Damage);
 	
 	if (CurrentHealth <= 0.0f)
 	{
