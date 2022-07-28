@@ -14,6 +14,13 @@ enum class EWeaponFireMode : uint8
 	WFM_MAX UMETA(Hidden)
 };
 
+UENUM()
+enum class EWeaponReloadFormat : uint8
+{
+	WRF_FullClip UMETA(DisplayName = "Full Clip"),
+	WRF_ByBullet UMETA(DisplayName = "By Bullet"),
+};
+
 DECLARE_MULTICAST_DELEGATE_OneParam(FOnAmmoChangedSignature, int32);
 DECLARE_MULTICAST_DELEGATE(FOnReloadCompleteSignature);
 
@@ -38,7 +45,7 @@ public:
 
 	bool CheckReloadRequiredForCharacter(const ABaseCharacter* InCharacter);
 
-	FORCEINLINE int32 GetCurrenAmmo() const { return CurrentAmmo; }
+	FORCEINLINE int32 GetCurrentAmmo() const { return CurrentAmmo; }
 	FORCEINLINE int32 GetMaxAmmo() const { return MaxAmmo; }
 
 	EAmmunitionType GetAmmoType() const { return AmmoType; }	
@@ -70,23 +77,26 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "RangeWeapon")
 	USkeletalMeshComponent* WeaponMesh;
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "RangeWeapon|Animations")
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "RangeWeapon|Animations|Fire")
 	UAnimMontage* FireMontage;
 	
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "RangeWeapon|Animations")
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "RangeWeapon|Animations|Fire")
 	UAnimMontage* CharacterFireMontage;
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "RangeWeapon|Animations")
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "RangeWeapon|Animations|Reloading")
 	UAnimMontage* ReloadMontage;
 	
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "RangeWeapon|Animations")
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "RangeWeapon|Animations|Reloading")
 	UAnimMontage* CharacterReloadMontage;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "RangeWeapon|Components")
 	class UWeaponBarrelComponent* WeaponBarrel;
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "RangeWeapon|Properties")
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "RangeWeapon|Properties|Fire")
 	EWeaponFireMode WeaponFireMode = EWeaponFireMode::WFM_Single;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "RangeWeapon|Properties|Reloading")
+	EWeaponReloadFormat WeaponReloadFormat = EWeaponReloadFormat::WRF_FullClip;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "RangeWeapon|Properties|NoScope", meta=(ToolTip = "Rate in rounds per minute", UIMin = 1.0f))
 	float FireRate = 300.f;
@@ -94,7 +104,7 @@ protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "RangeWeapon|Properties|NoScope", meta=(ToolTip = "Bullet spread half angle in degrees", UIMin = 0.0f, UIMax = 10.0f))
 	float SpreadAngle = 1.f;
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "RangeWeapon|Properties|Aim", meta=(ToolTip = "Rate in rounds per minute in Aiming mode", UIMin = 1.0f))
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "RangeWeapon|Properties|Aim", meta=(ToolTip = "Rate in rounds per minute in Aiming mode", UIMin = 1.0f), DisplayName="Fire Rate")
 	float AimingFireRate = 250.f;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "RangeWeapon|Properties|Aim", DisplayName = "Spread Angle", meta=(UIMin = 0.0f))
@@ -115,7 +125,7 @@ protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "RangeWeapon|Properties|Ammo")
 	bool bInfiniteAmmo = false;
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "RangeWeapon|Properties|Ammo")
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "RangeWeapon|Properties|Reloading")
 	bool bAutoReload = true;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "RangeWeapon|Properties|Ammo")
@@ -133,7 +143,7 @@ private:
 
 	void Shot();
 
-	FVector GetBulletSpreadOffset(const float Angle, const FRotator ShotRotation) const;
+	void OnShotTimerElapsed();
 	
 	float GetFireTimerInterval() const;
 	
@@ -144,7 +154,7 @@ private:
 	FTimerHandle ReloadingTimerHandle;
 	
 	bool bIsAiming = false;
-
+	bool bIsFiring = false;
 	bool bIsReloading = false;
 
 	TWeakObjectPtr<ABaseCharacter> CharacterOwner;

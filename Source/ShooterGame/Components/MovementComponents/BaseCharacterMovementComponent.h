@@ -140,7 +140,7 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Character|Movement|Zipline", meta = (ClampMin = 0.f, UIMin = 0.f, DisplayName = "Breaking Decelartion"))
 	float RidingOnZiplineBrakingDeceleration = 2048.f;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Character|Movement|Zippline", meta = (ClampMin = 0.f, UIMin = 0.f))
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Character|Movement|Zipline", meta = (ClampMin = 0.f, UIMin = 0.f))
 	float JumpOffZiplineSpeed = 500.f;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Character|Movement|Zipline", meta = (ClampMin = 0.f, UIMin = 0.f))

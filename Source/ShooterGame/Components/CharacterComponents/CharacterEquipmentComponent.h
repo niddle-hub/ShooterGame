@@ -30,6 +30,8 @@ public:
 
 	void ReloadEquippedWeapon() const;
 
+	void ReloadAmmoInEquippedWeapon(int32 NumberOfAmmo = 0, bool CheckIsFull = false);
+
 	void EquipItemInSlot(EEquipmentSlot Slot);
 	void AttachEquippedItem() const;
 

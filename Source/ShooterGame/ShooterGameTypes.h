@@ -26,6 +26,11 @@ namespace Socket
 	static const FName ForeGrip = "ForeGrip_Socket";
 }
 
+namespace MontageSection
+{
+	static const FName EndReloading = "EndReloading";
+}
+
 namespace NiagaraProperty
 {
 	static const FName TraceEnd = "TraceEnd";
@@ -46,6 +51,7 @@ enum class EAmmunitionType : uint8
 	AT_None UMETA(DisplayName = "None"),
 	AT_Pistol UMETA(DisplayName = "Pistol"),
 	AT_Rifle UMETA(DisplayName = "Rifle"),
+	AT_ShotgunShells UMETA(DisplayName = "Shotgun"),
 	AT_MAX UMETA(Hidden)
 };
 
@@ -55,5 +61,6 @@ enum class EEquipmentSlot : uint8
 	ES_None UMETA(DisplayName = "None"),
 	ES_SideArm UMETA(DisplayName = "SideArm"),
 	ES_PrimaryWeapon UMETA(DisplayName = "PrimaryWeapon"),
+	ES_SecondaryWeapon UMETA(DisplayName = "SecondaryWeapon"),
 	ES_MAX UMETA(Hidden)
 };
