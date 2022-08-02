@@ -90,6 +90,21 @@ void UCharacterEquipmentComponent::EquipItemInSlot(EEquipmentSlot Slot)
 
 	if (IsValid(EquippedItem))
 	{
+		if (IsValid(EquippedThrowableItem))
+		{
+			if (GetAvailableAmountOfEquippedThrowableItem() <= 0)
+			{
+				return;
+			}
+			if (!EquippedThrowableItem->IsUnlimited())
+			{
+				AmmunitionArray[static_cast<uint32>(EquippedThrowableItem->GetAmmunitionType())] -= 1;
+				if (OnEquippedThrowableItemAmountChangedDelegate.IsBound())
+				{
+					OnEquippedThrowableItemAmountChangedDelegate.Broadcast(GetAvailableAmountOfEquippedThrowableItem());
+				}
+			}
+		}
 		UAnimMontage* EquipMontage = EquippedItem->GetCharacterEquipAnimation();
 		if (IsValid(EquipMontage))
 		{
@@ -119,7 +134,7 @@ void UCharacterEquipmentComponent::EquipNext()
 	const uint32 CurrentSlotIndex = static_cast<uint32>(EquippedSlot);
 	uint32 NextSlotIndex = NextItemsArraySlotIndex(CurrentSlotIndex);
 	
-	while (CurrentSlotIndex != NextSlotIndex && IgnoreSlotsWhileSwitching.Contains(static_cast<EEquipmentSlot>(NextSlotIndex)) && !IsValid(ItemsArray[NextSlotIndex]))
+	while (CurrentSlotIndex != NextSlotIndex && (IgnoreSlotsWhileSwitching.Contains(static_cast<EEquipmentSlot>(NextSlotIndex)) || !IsValid(ItemsArray[NextSlotIndex])))
 	{
 		NextSlotIndex = NextItemsArraySlotIndex(NextSlotIndex);
 	}
@@ -133,8 +148,8 @@ void UCharacterEquipmentComponent::EquipPrevious()
 {
 	const uint32 CurrentSlotIndex = static_cast<uint32>(EquippedSlot);
 	uint32 PrevSlotIndex = PreviousItemsArraySlotIndex(CurrentSlotIndex);
-	
-	while (CurrentSlotIndex != PrevSlotIndex && IgnoreSlotsWhileSwitching.Contains(static_cast<EEquipmentSlot>(PrevSlotIndex)) &&  !IsValid(ItemsArray[PrevSlotIndex]))
+
+	while (CurrentSlotIndex != PrevSlotIndex && ( IgnoreSlotsWhileSwitching.Contains(static_cast<EEquipmentSlot>(PrevSlotIndex)) || !IsValid(ItemsArray[PrevSlotIndex])))
 	{
 		PrevSlotIndex = PreviousItemsArraySlotIndex(PrevSlotIndex);
 	}
@@ -147,7 +162,7 @@ void UCharacterEquipmentComponent::EquipPrevious()
 void UCharacterEquipmentComponent::LaunchEquippedThrowableItem()
 {
 	if(IsValid(EquippedThrowableItem))
-	{
+	{		
 		EquippedThrowableItem->Throw();
 		bIsEquipping = false;
 		EquipItemInSlot(PreviousEquippedSlot);
@@ -247,4 +262,10 @@ int32 UCharacterEquipmentComponent::GetAvailableAmmunitionForEquippedWeapon() co
 {
 	check(GetEquippedRangeWeapon())
 	return AmmunitionArray[static_cast<uint32>(GetEquippedRangeWeapon()->GetAmmoType())];
+}
+
+int32 UCharacterEquipmentComponent::GetAvailableAmountOfEquippedThrowableItem() const
+{
+	check(GetEquippedThrowableItem())
+	return AmmunitionArray[static_cast<uint32>(GetEquippedThrowableItem()->GetAmmunitionType())];
 }

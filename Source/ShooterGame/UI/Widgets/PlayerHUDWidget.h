@@ -14,6 +14,8 @@ public:
 
 	class UWeaponAmmoWidget* GetWeaponAmmoWidget() const;
 
+	class UThrowableItemWidget *GetThrowableItemWidget() const;
+
 	class UCharacterAttributesWidget* GetCharacterAttributesWidget() const;
 
 protected:
@@ -22,6 +24,9 @@ protected:
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Ammo")
 	FName WeaponAmmoWidgetName;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Item")
+	FName ThrowableItemWidgetName;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Character|Attributes")
 	FName CharacterAttributesWidgetName;

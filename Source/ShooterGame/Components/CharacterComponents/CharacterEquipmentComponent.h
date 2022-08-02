@@ -9,6 +9,7 @@ typedef TArray<int32, TInlineAllocator<static_cast<uint32>(EAmmunitionType::AT_M
 typedef TArray<class AEquipableItem*, TInlineAllocator<static_cast<uint32>(EEquipmentSlot::ES_MAX)>> TItemsArray;
 
 DECLARE_MULTICAST_DELEGATE_TwoParams(FOnEquippedWeaponAmmoChangedSignature, int32, int32);
+DECLARE_MULTICAST_DELEGATE_OneParam(FOnequippedThrowableItemAmountChangedSignature, int32);
 DECLARE_MULTICAST_DELEGATE(FOnWeaponChangedSignature);
 
 class ARangeWeaponItem;
@@ -24,9 +25,12 @@ public:
 
 	FORCEINLINE ARangeWeaponItem* GetEquippedRangeWeapon() const { return EquippedWeapon; }
 
+	FORCEINLINE AThrowableItem* GetEquippedThrowableItem() const { return EquippedThrowableItem; }
+
 	FORCEINLINE bool IsEquipping() const { return bIsEquipping; }
 
 	FOnEquippedWeaponAmmoChangedSignature OnEquippedWeaponAmmoChangedDelegate;
+	FOnequippedThrowableItemAmountChangedSignature OnEquippedThrowableItemAmountChangedDelegate;
 	FOnWeaponChangedSignature OnWeaponChangedDelegate;
 
 	void ReloadEquippedWeapon() const;
@@ -84,6 +88,8 @@ private:
 	TWeakObjectPtr<class ABaseCharacter> OwnerCharacter;
 
 	int32 GetAvailableAmmunitionForEquippedWeapon() const;
+
+	int32 GetAvailableAmountOfEquippedThrowableItem() const;
 
 	bool bIsEquipping = false;
 	FTimerHandle EquipTimerHandle;

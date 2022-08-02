@@ -1,10 +1,12 @@
 // ReSharper disable CppMemberFunctionMayBeConst
 #include "BaseCharacterController.h"
 
+#include "ShooterGame/Actors/Equipment/Throwable/ThrowableItem.h"
 #include "ShooterGame/Components/CharacterComponents/CharacterAttributesComponent.h"
 #include "ShooterGame/Components/CharacterComponents/CharacterEquipmentComponent.h"
 #include "ShooterGame/UI/Widgets/CharacterAttributesWidget.h"
 #include "ShooterGame/UI/Widgets/ReticleWidget.h"
+#include "ShooterGame/UI/Widgets/ThrowableItemWidget.h"
 #include "ShooterGame/UI/Widgets/WeaponAmmoWidget.h"
 
 void ABaseCharacterController::SetPawn(APawn* InPawn)
@@ -273,6 +275,13 @@ void ABaseCharacterController::CreateWidgets()
 		{
 			UCharacterEquipmentComponent* EquipmentComponent = CachedCharacter->GetCharacterEquipmentComponent_Mutable();
 			EquipmentComponent->OnEquippedWeaponAmmoChangedDelegate.AddUFunction(WeaponAmmoWidget, FName("UpdateAmmo"));
+		}
+
+		UThrowableItemWidget* ThrowableItemWidget = PlayerHUDWidget->GetThrowableItemWidget();
+		if (IsValid(ThrowableItemWidget))
+		{
+			UCharacterEquipmentComponent* EquipmentComponent = CachedCharacter->GetCharacterEquipmentComponent_Mutable();
+			EquipmentComponent->OnEquippedThrowableItemAmountChangedDelegate.AddUFunction(ThrowableItemWidget, FName("UpdateAmount"));
 		}
 
 		UCharacterAttributesWidget* CharacterAttributesWidget = PlayerHUDWidget->GetCharacterAttributesWidget();
