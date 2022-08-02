@@ -18,5 +18,6 @@ void ASGProjectile::LaunchProjectile(const FVector Direction)
 {
 	ProjectileMovementComponent->Velocity = Direction * ProjectileMovementComponent->InitialSpeed;
 	CollisionComponent->IgnoreActorWhenMoving(GetOwner(), true);
+	OnProjectileLaunched();
 }
 

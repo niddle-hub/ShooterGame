@@ -62,6 +62,8 @@ private:
 	void NextItem();
 	void PreviousItem();
 
+	void EquipPrimaryItem();
+
 	bool IgnoreCameraPitch = false;
 
 	void CreateWidgets();

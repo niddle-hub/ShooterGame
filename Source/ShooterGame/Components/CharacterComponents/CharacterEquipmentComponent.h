@@ -12,6 +12,7 @@ DECLARE_MULTICAST_DELEGATE_TwoParams(FOnEquippedWeaponAmmoChangedSignature, int3
 DECLARE_MULTICAST_DELEGATE(FOnWeaponChangedSignature);
 
 class ARangeWeaponItem;
+class AThrowableItem;
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class SHOOTERGAME_API UCharacterEquipmentComponent : public UActorComponent
@@ -38,6 +39,8 @@ public:
 	void EquipNext();
 	void EquipPrevious();
 
+	void LaunchEquippedThrowableItem();
+
 protected:
 	virtual void BeginPlay() override;
 
@@ -46,6 +49,9 @@ protected:
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Equipment")
 	TMap<EEquipmentSlot, TSubclassOf<AEquipableItem>> ItemsLoadout;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Equipment")
+	TSet<EEquipmentSlot> IgnoreSlotsWhileSwitching;
 
 private:
 	TAmmunitionArray AmmunitionArray;
@@ -63,9 +69,11 @@ private:
 	FDelegateHandle OnEquippedWeaponAmmoChangedHandle;
 	FDelegateHandle OnEquippedWeaponReloadedHandle;
 
+	EEquipmentSlot PreviousEquippedSlot;
 	EEquipmentSlot EquippedSlot;
 	AEquipableItem* EquippedItem;
 	ARangeWeaponItem* EquippedWeapon;
+	AThrowableItem* EquippedThrowableItem;
 
 	UFUNCTION()
 	void OnEquippedWeaponAmmoChanged(int32 NewAmmo) const;

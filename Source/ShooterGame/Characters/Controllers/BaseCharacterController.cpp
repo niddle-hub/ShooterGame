@@ -46,6 +46,7 @@ void ABaseCharacterController::SetupInputComponent()
 	InputComponent->BindAction("Reload", IE_Pressed, this, &ABaseCharacterController::Reload);
 	InputComponent->BindAction("NextItem", IE_Pressed, this, &ABaseCharacterController::NextItem);
 	InputComponent->BindAction("PrevItem", IE_Pressed, this, &ABaseCharacterController::PreviousItem);
+	InputComponent->BindAction("EquipPrimaryItem", IE_Pressed, this, &ABaseCharacterController::EquipPrimaryItem);
 }
 
 void ABaseCharacterController::MoveForward(float Value)
@@ -237,6 +238,14 @@ void ABaseCharacterController::PreviousItem()
 	if (CachedCharacter.IsValid())
 	{
 		CachedCharacter->PreviousItem();
+	}
+}
+
+void ABaseCharacterController::EquipPrimaryItem()
+{
+	if (CachedCharacter)
+	{
+		CachedCharacter->EquipPrimaryItem();
 	}
 }
 

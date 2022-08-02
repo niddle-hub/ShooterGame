@@ -147,6 +147,8 @@ public:
 	void PreviousItem() const;
 
 	void ReloadEquippedWeapon() const;
+	
+	void EquipPrimaryItem() const;
 
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "BaseCharacter")
 	void OnStartAiming();

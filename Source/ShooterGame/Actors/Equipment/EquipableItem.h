@@ -5,6 +5,8 @@
 #include "ShooterGame/ShooterGameTypes.h"
 #include "EquipableItem.generated.h"
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnEqupementStateChangedSignature, bool, bIsEquipped);
+
 UCLASS(Abstract, NotBlueprintable)
 class SHOOTERGAME_API AEquipableItem : public AActor
 {
@@ -17,8 +19,14 @@ public:
 	FName GetEquippedSocketName() const { return EquippedSocketName; }
 
 	UAnimMontage* GetCharacterEquipAnimation() const { return EquipAnimation; }
+
+	virtual void Equip();
+	virtual void Unequip();
 	
 protected:
+	UPROPERTY(BlueprintAssignable)
+	FOnEqupementStateChangedSignature OnEquipmentStateChangedDelegate;
+	
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "EquipableItem")
 	EEquipableItemType ItemType = EEquipableItemType::EIT_None;
 

@@ -373,6 +373,11 @@ void ABaseCharacter::ReloadEquippedWeapon() const
 	}
 }
 
+void ABaseCharacter::EquipPrimaryItem() const
+{
+	CharacterEquipmentComponent->EquipItemInSlot(EEquipmentSlot::ES_PrimaryItem);
+}
+
 void ABaseCharacter::OnStartAiming_Implementation()
 {
 	OnStartAimingInternal();

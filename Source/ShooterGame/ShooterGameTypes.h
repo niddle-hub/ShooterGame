@@ -24,6 +24,7 @@ namespace Socket
 	static const FName Weapon_R = "WeaponSocket_R";
 	static const FName Muzzle = "Muzzle_Socket";
 	static const FName ForeGrip = "ForeGrip_Socket";
+	static const FName Throwable_R = "ThrowableSocket_R";
 }
 
 namespace MontageSection
@@ -42,6 +43,7 @@ enum class EEquipableItemType : uint8
 	EIT_None UMETA(DisplayName = "None"),
 	EIT_Pistol UMETA(DisplayName = "Pistol"),
 	EIT_Rifle UMETA(DisplayName = "Rifle"),
+	EIT_Throwable UMETA(DisplayName = "Throwable"),
 	EIT_MAX UMETA(Hidden)
 };
 
@@ -52,6 +54,7 @@ enum class EAmmunitionType : uint8
 	AT_Pistol UMETA(DisplayName = "Pistol"),
 	AT_Rifle UMETA(DisplayName = "Rifle"),
 	AT_ShotgunShells UMETA(DisplayName = "Shotgun"),
+	AT_FragGrenades UMETA(DisplayName = "FragGrenades"),
 	AT_MAX UMETA(Hidden)
 };
 
@@ -62,5 +65,6 @@ enum class EEquipmentSlot : uint8
 	ES_SideArm UMETA(DisplayName = "SideArm"),
 	ES_PrimaryWeapon UMETA(DisplayName = "PrimaryWeapon"),
 	ES_SecondaryWeapon UMETA(DisplayName = "SecondaryWeapon"),
+	ES_PrimaryItem UMETA(DisplayName = "PrimaryItem"),
 	ES_MAX UMETA(Hidden)
 };
